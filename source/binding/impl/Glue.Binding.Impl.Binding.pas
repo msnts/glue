@@ -4,6 +4,7 @@ interface
 uses
    System.Classes,
    Vcl.StdCtrls,
+   Rtti,
    Glue.Binding,
    Generics.Collections,
    Glue.NotifyPropertyChanging,
@@ -20,6 +21,13 @@ type
       FListenersAfter : TList<IBinding>;
       FMode : TModeBinding;
       FBindContext : TBindContext;
+      FRTTIContext : TRttiContext;
+      FPropertyVM : TRttiProperty;
+      FPropertyUI : TRttiProperty;
+      FComponentType : TRttiType;
+      FViewModelType : TRttiType;
+   protected
+      procedure DoUpdateView(); virtual; abstract;
    public
       constructor Create(Mode : TModeBinding; Context : TBindContext);
       destructor Destroy(); override;
@@ -27,6 +35,8 @@ type
       procedure AddListenerBefore(Listener : IBinding);
       procedure AddListenerAfter(Listener : IBinding);
       procedure ProcessBinding(); virtual; abstract;
+      procedure SetComponent(Component : TComponent);
+      procedure SetViewModel(ViewModel : INotifyPropertyChanging);
    end;
 
 implementation
@@ -53,7 +63,7 @@ begin
    FListenersBefore := TList<IBinding>.Create;
    FListenersAfter := TList<IBinding>.Create;
 
-   ProcessBinding();
+   FRTTIContext := TRttiContext.Create;
 
 end;
 
@@ -64,6 +74,16 @@ begin
   inherited;
 end;
 
+procedure TBinding.SetComponent(Component: TComponent);
+begin
+   FComponent := Component;
+end;
+
+procedure TBinding.SetViewModel(ViewModel: INotifyPropertyChanging);
+begin
+   FViewModel := ViewModel;
+end;
+
 procedure TBinding.UpdateView;
 var
    Binding : IBinding;
@@ -72,6 +92,7 @@ begin
    for Binding in FListenersBefore do
       Binding.UpdateView;
 
+   DoUpdateView;
 
    for Binding in FListenersAfter do
       Binding.UpdateView;

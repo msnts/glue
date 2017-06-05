@@ -38,7 +38,13 @@ var
    Binding : IBinding;
 begin
 
-   Binding := TBindingFactory.CreateBinding(Field.ClassType, mbSaveLoad, Attr.BindContext);
+   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbSaveLoad, Attr.BindContext);
+
+   Binding.SetComponent(FView.FindComponent(Field.Name));
+
+   Binding.SetViewModel(FViewModel);
+
+   Binding.ProcessBinding();
 
    FBinders.Add(Attr.BindContext.AttributeVM, Binding);
 
@@ -49,7 +55,7 @@ var
    Binding : IBinding;
 begin
 
-   Binding := TBindingFactory.CreateBinding(Field.ClassType, mbLoad, Attr.BindContext);
+   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbLoad, Attr.BindContext);
 
    FBinders.Add(Attr.BindContext.AttributeVM, Binding);
 
@@ -60,7 +66,7 @@ var
    Binding : IBinding;
 begin
 
-   Binding := TBindingFactory.CreateBinding(Field.ClassType, mbSave, Attr.BindContext);
+   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbSave, Attr.BindContext);
 
    FBinders.Add(Attr.BindContext.AttributeVM, Binding);
 
@@ -72,7 +78,7 @@ begin
    FView := View;
    FViewModel := ViewModel;
 
-  // FViewModel.Attach(Self);
+   FViewModel.Attach(Self);
 
    FBinders := TDictionary<String, IBinding>.Create;
 

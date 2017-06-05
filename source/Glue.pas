@@ -7,7 +7,8 @@ uses
    Glue.Attributes,
    Glue.NotifyPropertyChanging,
    Glue.BindableBase,
-   Glue.DataManager;
+   Glue.DataManager,
+   UViewModelForm;
 
 type
 
@@ -23,7 +24,7 @@ type
       procedure ProcessDataBind(View : TObject);
       procedure RegisterViewModel(Attribute : ViewModelAttribute);
       class procedure ReleaseInstance();
-      function GetViewModelInstance(ViewName : String) : TObject;
+      function GetViewModelInstance(ViewName : String) : INotifyPropertyChanging;
    public
       class function GetInstance() : TGlue;
       constructor Create();
@@ -56,7 +57,7 @@ begin
    Result := Self.FInstance;
 end;
 
-function TGlue.GetViewModelInstance(ViewName: String): TObject;
+function TGlue.GetViewModelInstance(ViewName: String): INotifyPropertyChanging;
 var
    ViewModelName : String;
    Context : TRttiContext;
@@ -75,6 +76,8 @@ begin
      // InstanceType := (Context.FindType(ViewModelName) as TRttiInstanceType);
 
     //  Result := InstanceType.MetaclassType.Create;
+
+   Result := TViewModelForm.Create;
 
    finally
       Context.Free;
@@ -153,14 +156,14 @@ end;
 procedure TGlue.Run(ClassName : TComponentClass);
 var
    Form : TForm;
-   ViewModel : TObject;
+   ViewModel : INotifyPropertyChanging;
 begin
 
    Application.CreateForm(ClassName, Form);
 
    ViewModel := GetViewModelInstance(Form.QualifiedClassName);
 
-   with TDataManager.Create(Form, nil) do
+   with TDataManager.Create(Form, ViewModel) do
    try
       Application.Run;
    finally

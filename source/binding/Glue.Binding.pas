@@ -1,6 +1,9 @@
 unit Glue.Binding;
 
 interface
+uses
+   System.Classes,
+   Glue.NotifyPropertyChanging;
 
 type
 
@@ -11,6 +14,9 @@ type
       procedure UpdateView();
       procedure AddListenerBefore(Listener : IBinding);
       procedure AddListenerAfter(Listener : IBinding);
+      procedure SetComponent(Component : TComponent);
+      procedure SetViewModel(ViewModel : INotifyPropertyChanging);
+      procedure ProcessBinding();
    end;
 
 implementation

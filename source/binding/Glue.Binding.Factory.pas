@@ -3,6 +3,7 @@ unit Glue.Binding.Factory;
 interface
 uses
    Vcl.StdCtrls,
+   System.SysUtils,
    System.Classes,
    Glue.Binding,
    Glue.NotifyPropertyChanging,
@@ -15,23 +16,23 @@ type
 
    TBindingFactory = class
    public
-      class function CreateBinding(ClassType : TClass; Mode : TModeBinding; Context : TBindContext) : IBinding;
+      class function CreateBinding(ClassName : String; Mode : TModeBinding; Context : TBindContext) : IBinding;
    end;
 
 implementation
 
 { TBindingFactory }
 
-class function TBindingFactory.CreateBinding(ClassType: TClass; Mode : TModeBinding; Context : TBindContext): IBinding;
+class function TBindingFactory.CreateBinding(ClassName: String; Mode : TModeBinding; Context : TBindContext): IBinding;
 begin
 
-   if ClassType = TLabel then
+   if 'TLabel'.Equals(ClassName) then
       Exit(TLabelBinding.Create(mbLoad, Context));
 
-   if ClassType = TEdit then
+   if 'TEdit'.Equals(ClassName) then
       Exit(TEditBinding.Create(Mode, Context));
 
-   if ClassType = TCheckBox then
+   if 'TCheckBox'.Equals(ClassName) then
       Exit(TCheckBoxBinding.Create(Mode, Context));
 
 end;
