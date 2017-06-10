@@ -77,14 +77,7 @@
         </DelphiCompile>
         <DCCReference Include="..\source\converter\Glue.Converter.pas"/>
         <DCCReference Include="..\source\binding\Glue.Binding.pas"/>
-        <DCCReference Include="..\source\binding\Glue.Binding.Factory.pas"/>
         <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.Binding.pas"/>
-        <DCCReference Include="..\source\binding\Glue.Binding.EditBinding.pas"/>
-        <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.EditBinding.pas"/>
-        <DCCReference Include="..\source\binding\Glue.Binding.CheckBoxBinding.pas"/>
-        <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.CheckBoxBinding.pas"/>
-        <DCCReference Include="..\source\binding\Glue.Binding.LabelBinding.pas"/>
-        <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.LabelBinding.pas"/>
         <DCCReference Include="..\source\binding\Glue.Binding.BindingContext.pas"/>
         <DCCReference Include="..\source\Glue.Attributes.pas"/>
         <DCCReference Include="..\source\Glue.BindableBase.pas"/>
@@ -97,6 +90,10 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="UViewModelForm.pas"/>
+        <DCCReference Include="..\source\Glue.Enum.pas"/>
+        <DCCReference Include="..\source\Glue.ActionListener.pas"/>
+        <DCCReference Include="..\source\binding\Glue.Binding.Command.pas"/>
+        <DCCReference Include="..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

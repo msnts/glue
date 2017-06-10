@@ -9,7 +9,8 @@ uses
    Glue.NotifyPropertyChanging,
    Glue.Attributes,
    Glue.Binding,
-   Glue.Binding.Factory;
+   Glue.Binding.Impl.Binding,
+   Glue.Binding.Command;
 
 type
 
@@ -18,11 +19,11 @@ type
       FView : TComponent;
       FViewModel : INotifyPropertyChanging;
       FBinders : TDictionary<String, IBinding>;
+      FCommands : TDictionary<String, ICommand>;
    private
       procedure DataBinding();
-      procedure AddBind(Field: TRttiField; Attr: BindAttribute);
-      procedure AddLoad(Field: TRttiField; Attr: LoadAttribute);
-      procedure AddSave(Field: TRttiField; Attr: SaveAttribute);
+      procedure AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
+      procedure AddCommand(Field: TRttiField; Attr: CommandAttribute);
    public
       constructor Create(View : TComponent; ViewModel : INotifyPropertyChanging);
       destructor Destroy(); override;
@@ -30,57 +31,39 @@ type
    end;
 
 implementation
+uses System.SysUtils;
 
 { TDataBinding }
 
-procedure TDataManager.AddBind(Field: TRttiField; Attr: BindAttribute);
+procedure TDataManager.AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
 var
    Binding : IBinding;
 begin
 
-   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbSaveLoad, Attr.BindContext);
-
-   Binding.SetComponent(FView.FindComponent(Field.Name));
-
-   Binding.SetViewModel(FViewModel);
-
-   Binding.ProcessBinding();
+   Binding := TBinding.Create(Attr.Mode, FView.FindComponent(Field.Name), FViewModel,  Attr.BindContext);
 
    FBinders.Add(Attr.BindContext.AttributeVM, Binding);
 
 end;
 
-procedure TDataManager.AddLoad(Field: TRttiField; Attr: LoadAttribute);
-var
-   Binding : IBinding;
+procedure TDataManager.AddCommand(Field: TRttiField; Attr: CommandAttribute);
 begin
-
-   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbLoad, Attr.BindContext);
-
-   FBinders.Add(Attr.BindContext.AttributeVM, Binding);
-
-end;
-
-procedure TDataManager.AddSave(Field: TRttiField; Attr: SaveAttribute);
-var
-   Binding : IBinding;
-begin
-
-   Binding := TBindingFactory.CreateBinding(Field.FieldType.Name, mbSave, Attr.BindContext);
-
-   FBinders.Add(Attr.BindContext.AttributeVM, Binding);
 
 end;
 
 constructor TDataManager.Create(View: TComponent;
   ViewModel: INotifyPropertyChanging);
 begin
+
    FView := View;
+
    FViewModel := ViewModel;
 
    FViewModel.Attach(Self);
 
    FBinders := TDictionary<String, IBinding>.Create;
+
+   FCommands := TDictionary<String, ICommand>.Create;
 
    DataBinding;
 
@@ -103,21 +86,15 @@ begin
       for Attr in Field.GetAttributes do
       begin
 
-         if Attr is BindAttribute then
+         if Attr is TBindBaseAttribute then
          begin
-            AddBind(Field, BindAttribute(Attr));
+            AddBind(Field, TBindBaseAttribute(Attr));
             Break;
          end;
 
-         if Attr is LoadAttribute then
+         if Attr is CommandAttribute then
          begin
-            AddLoad(Field, LoadAttribute(Attr));
-            Break;
-         end;
-
-         if Attr is SaveAttribute then
-         begin
-            AddSave(Field, SaveAttribute(Attr));
+            AddCommand(Field, CommandAttribute(Attr));
             Break;
          end;
 
@@ -129,14 +106,27 @@ end;
 
 destructor TDataManager.Destroy;
 begin
-  FBinders.Free;
-  inherited;
+
+   FBinders.Free;
+
+   FCommands.Free;
+
+   inherited;
 end;
 
 procedure TDataManager.Update(const PropertyName: string);
 var
    Binder : IBinding;
 begin
+
+   if PropertyName.Equals('*') then
+   begin
+
+      for Binder in FBinders.Values.ToArray do
+         Binder.UpdateView;
+
+      Exit;
+   end;
 
    if not FBinders.ContainsKey(PropertyName) then
       Exit;

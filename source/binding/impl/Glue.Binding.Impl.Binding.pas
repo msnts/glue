@@ -1,101 +1,120 @@
 unit Glue.Binding.Impl.Binding;
 
 interface
+
 uses
    System.Classes,
    Vcl.StdCtrls,
+   System.SysUtils,
    Rtti,
    Glue.Binding,
    Generics.Collections,
    Glue.NotifyPropertyChanging,
    Glue.Binding.BindingContext,
-   Glue.BindableBase;
+   Glue.BindableBase,
+   Glue.Converter,
+   Glue.Enum,
+   Glue.Converter.Impl.GenericConverter;
 
 type
 
    TBinding = class(TInterfacedObject, IBinding)
    protected
-      FComponent : TComponent;
-      FViewModel : INotifyPropertyChanging;
-      FListenersBefore : TList<IBinding>;
-      FListenersAfter : TList<IBinding>;
-      FMode : TModeBinding;
-      FBindContext : TBindContext;
-      FRTTIContext : TRttiContext;
-      FPropertyVM : TRttiProperty;
-      FPropertyUI : TRttiProperty;
-      FComponentType : TRttiType;
-      FViewModelType : TRttiType;
+      FComponent: TComponent;
+      FViewModel: INotifyPropertyChanging;
+      FMode: TModeBinding;
+      FBindContext: TBindContext;
+      FRTTIContext: TRttiContext;
+      FPropertyVM: TRttiProperty;
+      FPropertyUI: TRttiProperty;
+      FComponentType: TRttiType;
+      FViewModelType: TRttiType;
    protected
-      procedure DoUpdateView(); virtual; abstract;
+      procedure OnChange(Sender: TObject);
+      procedure ProcessBinding();
    public
-      constructor Create(Mode : TModeBinding; Context : TBindContext);
-      destructor Destroy(); override;
+      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging;  Context: TBindContext);
       procedure UpdateView();
-      procedure AddListenerBefore(Listener : IBinding);
-      procedure AddListenerAfter(Listener : IBinding);
-      procedure ProcessBinding(); virtual; abstract;
-      procedure SetComponent(Component : TComponent);
-      procedure SetViewModel(ViewModel : INotifyPropertyChanging);
    end;
 
 implementation
 
 { TBinding }
 
-procedure TBinding.AddListenerAfter(Listener: IBinding);
-begin
-   FListenersAfter.Add(Listener);
-end;
-
-procedure TBinding.AddListenerBefore(Listener: IBinding);
-begin
-   FListenersBefore.Add(Listener);
-end;
-
-constructor TBinding.Create(Mode : TModeBinding; Context : TBindContext);
+constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging;  Context: TBindContext);
 begin
 
    FMode := Mode;
 
-   FBindContext := Context;
+   FComponent := Component;
 
-   FListenersBefore := TList<IBinding>.Create;
-   FListenersAfter := TList<IBinding>.Create;
+   FViewModel := ViewModel;
+
+   FBindContext := Context;
 
    FRTTIContext := TRttiContext.Create;
 
+   ProcessBinding;
+
 end;
 
-destructor TBinding.Destroy;
+procedure TBinding.OnChange(Sender: TObject);
+var
+   Converter: IConverter;
+   Value: TValue;
 begin
-  FListenersBefore.Free;
-  FListenersAfter.Free;
-  inherited;
+
+   Converter := TGenericConverter.Create(FPropertyUI.PropertyType.TypeKind, FPropertyVM.PropertyType.TypeKind);
+
+   Value := Converter.coerceToVM(FPropertyUI.GetValue(TEdit(FComponent)), FComponent);
+
+   FPropertyVM.SetValue(FViewModel as TObject, Value);
+
 end;
 
-procedure TBinding.SetComponent(Component: TComponent);
+procedure TBinding.ProcessBinding;
+var
+   objType: TRttiType;
+   Prop: TRttiProperty;
 begin
-   FComponent := Component;
-end;
 
-procedure TBinding.SetViewModel(ViewModel: INotifyPropertyChanging);
-begin
-   FViewModel := ViewModel;
+   objType := FRTTIContext.GetType(TObject(FViewModel).ClassType);
+
+   FPropertyVM := objType.GetProperty(FBindContext.AttributeVM);
+
+   objType := FRTTIContext.GetType(FComponent.ClassType);
+
+   FPropertyUI := objType.GetProperty(FBindContext.AttributeUI);
+
+   if FMode = mbLoad then
+      Exit;
+
+   Prop := objType.GetProperty('OnChange');
+
+   if Prop = nil then
+      Prop := objType.GetProperty('OnClick');
+
+   if Prop = nil then
+      raise Exception.Create('Property OnChange not found');
+
+   Prop.SetValue(FComponent, TValue.From<TNotifyEvent>(OnChange));
+
 end;
 
 procedure TBinding.UpdateView;
 var
-   Binding : IBinding;
+   Converter: IConverter;
+   Value: TValue;
 begin
 
-   for Binding in FListenersBefore do
-      Binding.UpdateView;
+   if FMode = mbSave then
+      Exit;
 
-   DoUpdateView;
+   Converter := TGenericConverter.Create(FPropertyUI.PropertyType.TypeKind, FPropertyVM.PropertyType.TypeKind);
 
-   for Binding in FListenersAfter do
-      Binding.UpdateView;
+   Value := Converter.coerceToUI(FPropertyVM.GetValue(FViewModel as TObject), FComponent);
+
+   FPropertyUI.SetValue(FComponent, Value);
 
 end;
 
