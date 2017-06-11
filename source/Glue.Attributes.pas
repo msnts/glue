@@ -33,12 +33,12 @@ type
    CommandAttribute = class(TCustomAttribute)
    private
       FTriggerName : String;
-      FMethodName : String;
+      FHandlerName : String;
    public
-      constructor Create(MethodName : String); overload;
-      constructor Create(TriggerName, MethodName : String); overload;
+      constructor Create(HandlerName : String); overload;
+      constructor Create(TriggerName, HandlerName : String); overload;
       property TriggerName : String read FTriggerName;
-      property MethodName : String read FMethodName;
+      property HandlerName : String read FHandlerName;
    end;
 
    ViewModelAttribute = class(TCustomAttribute)
@@ -133,16 +133,16 @@ end;
 
 { CommandAttribute }
 
-constructor CommandAttribute.Create(MethodName: String);
+constructor CommandAttribute.Create(HandlerName: String);
 begin
-   FTriggerName := 'Default';
-   FMethodName := MethodName;
+   FTriggerName := 'OnClick';
+   FHandlerName := HandlerName;
 end;
 
-constructor CommandAttribute.Create(TriggerName, MethodName: String);
+constructor CommandAttribute.Create(TriggerName, HandlerName: String);
 begin
    FTriggerName := TriggerName;
-   FMethodName := MethodName;
+   FHandlerName := HandlerName;
 end;
 
 end.
