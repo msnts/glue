@@ -94,6 +94,8 @@
         <DCCReference Include="..\source\Glue.ActionListener.pas"/>
         <DCCReference Include="..\source\binding\Glue.Binding.Command.pas"/>
         <DCCReference Include="..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas"/>
+        <DCCReference Include="..\source\Glue.Exceptions.pas"/>
+        <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.Command.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

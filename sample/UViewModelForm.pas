@@ -30,7 +30,7 @@ type
       procedure SetEnableEdit1(Enable : Boolean);
       function GetMsgNumChar() : String;
    public
-      procedure OnClick();
+      procedure OnClick(Sender : TObject; V : Integer);
    public
       property LabelNome : String read GetLabelNome write SetLabelNome;
       property PrimeiroNome : String read GetPrimeiroNome write SetPrimeiroNome;
@@ -89,8 +89,12 @@ begin
    Result := FNumero1 + FNumero2;
 end;
 
-procedure TViewModelForm.OnClick;
+procedure TViewModelForm.OnClick(Sender : TObject; V : Integer);
 begin
+
+   FPrimeiroNome := 'Onclick ' + Sender.ClassName;
+
+   Notify('PrimeiroNome');
 
 end;
 

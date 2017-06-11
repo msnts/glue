@@ -17,11 +17,17 @@ uses
   Glue.Enum in '..\source\Glue.Enum.pas',
   Glue.ActionListener in '..\source\Glue.ActionListener.pas',
   Glue.Binding.Command in '..\source\binding\Glue.Binding.Command.pas',
-  Glue.Converter.Impl.GenericConverter in '..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas';
+  Glue.Converter.Impl.GenericConverter in '..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas',
+  Glue.Exceptions in '..\source\Glue.Exceptions.pas',
+  Glue.Binding.Impl.Command in '..\source\binding\impl\Glue.Binding.Impl.Command.pas';
 
 {$R *.res}
 
 begin
+
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
 
   TGlue.GetInstance.Initialize;
 

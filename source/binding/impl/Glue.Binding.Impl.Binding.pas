@@ -29,11 +29,12 @@ type
       FPropertyUI: TRttiProperty;
       FComponentType: TRttiType;
       FViewModelType: TRttiType;
+      FConverter : IConverter;
    protected
       procedure OnChange(Sender: TObject);
       procedure ProcessBinding();
    public
-      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging;  Context: TBindContext);
+      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging; Converter : IConverter; Context: TBindContext);
       procedure UpdateView();
    end;
 
@@ -41,7 +42,7 @@ implementation
 
 { TBinding }
 
-constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging;  Context: TBindContext);
+constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging; Converter : IConverter; Context: TBindContext);
 begin
 
    FMode := Mode;
@@ -56,17 +57,19 @@ begin
 
    ProcessBinding;
 
+   FConverter := Converter;
+
+   if FConverter is TGenericConverter then
+      TGenericConverter(FConverter).SetPropertiesType(FPropertyUI.PropertyType, FPropertyVM.PropertyType);
+
 end;
 
 procedure TBinding.OnChange(Sender: TObject);
 var
-   Converter: IConverter;
    Value: TValue;
 begin
 
-   Converter := TGenericConverter.Create(FPropertyUI.PropertyType.TypeKind, FPropertyVM.PropertyType.TypeKind);
-
-   Value := Converter.coerceToVM(FPropertyUI.GetValue(TEdit(FComponent)), FComponent);
+   Value := FConverter.coerceToVM(FPropertyUI.GetValue(TEdit(FComponent)), FComponent);
 
    FPropertyVM.SetValue(FViewModel as TObject, Value);
 
@@ -103,16 +106,13 @@ end;
 
 procedure TBinding.UpdateView;
 var
-   Converter: IConverter;
    Value: TValue;
 begin
 
    if FMode = mbSave then
       Exit;
 
-   Converter := TGenericConverter.Create(FPropertyUI.PropertyType.TypeKind, FPropertyVM.PropertyType.TypeKind);
-
-   Value := Converter.coerceToUI(FPropertyVM.GetValue(FViewModel as TObject), FComponent);
+   Value := FConverter.coerceToUI(FPropertyVM.GetValue(FViewModel as TObject), FComponent);
 
    FPropertyUI.SetValue(FComponent, Value);
 

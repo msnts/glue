@@ -15,6 +15,7 @@ type
    TGlue = class
    private
       class var FInstance : TGlue;
+      class var FConverters : TDictionary<String, TClass>;
    private
       FViewModels : TDictionary<String, String>;
       FContext : TRttiContext;
@@ -31,9 +32,12 @@ type
       destructor Destroy(); override;
       procedure Initialize();
       procedure Run(ClassName : TComponentClass);
+      function GetConverter(QualifiedClassName : String) : TClass;
+      class procedure RegisterConverter(TypeClass : TClass);
    end;
 
 implementation
+uses Glue.Exceptions;
 
 { TGlue }
 
@@ -46,6 +50,16 @@ destructor TGlue.Destroy;
 begin
   FViewModels.Free;
   inherited;
+end;
+
+function TGlue.GetConverter(QualifiedClassName: String): TClass;
+begin
+
+   if not FConverters.ContainsKey(QualifiedClassName) then
+      raise EConverterNotFoundException.Create('Converter Not Found');
+
+   Result := FConverters.Items[QualifiedClassName];
+
 end;
 
 class function TGlue.GetInstance: TGlue;
@@ -134,6 +148,11 @@ begin
 
 end;
 
+class procedure TGlue.RegisterConverter(TypeClass: TClass);
+begin
+   FConverters.Add(TypeClass.QualifiedClassName, TypeClass);
+end;
+
 procedure TGlue.RegisterViewModel(Attribute: ViewModelAttribute);
 var
    ClassType : TClass;
@@ -151,23 +170,28 @@ class procedure TGlue.ReleaseInstance;
 begin
    if Assigned(Self.FInstance) then
     Self.FInstance.Free;
+
+    FConverters.Free;
+
 end;
 
 procedure TGlue.Run(ClassName : TComponentClass);
 var
    Form : TForm;
    ViewModel : INotifyPropertyChanging;
+   DataMananger : IDataManager;
 begin
 
    Application.CreateForm(ClassName, Form);
 
    ViewModel := GetViewModelInstance(Form.QualifiedClassName);
 
-   with TDataManager.Create(Form, ViewModel) do
+   DataMananger := TDataManager.Create(Form, ViewModel);
+
    try
       Application.Run;
    finally
-      Free;
+      DataMananger.ReleaseData;
    end;
 
 end;

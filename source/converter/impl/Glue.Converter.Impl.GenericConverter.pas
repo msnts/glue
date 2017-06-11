@@ -10,18 +10,19 @@ uses
 type
    TGenericConverter = class(TInterfacedObject, IConverter)
    private
-      FTypeInfoUI : TTypeKind;
-      FTypeInfoVM : TTypeKind;
+      FPropertyTypeUI : TRttiType;
+      FPropertyTypeVM : TRttiType;
    private
       function ValueToString(Value : TValue) : String;
+      function ValueFromEnumeration(Value : TValue) : TValue;
    public
-      constructor Create(TypeInfoUI, TypeInfoVM : TTypeKind);
+      procedure SetPropertiesType(PropertyTypeUI, PropertyTypeVM : TRttiType);
       function coerceToUI(Value : TValue; Component : TComponent) : TValue;
       function coerceToVM(Value : TValue; Component : TComponent) : TValue;
    end;
 
 implementation
-uses System.SysUtils;
+uses System.SysUtils, Glue.Exceptions;
 
 
 { TGenericConverter }
@@ -30,10 +31,11 @@ function TGenericConverter.coerceToUI(Value: TValue;
   Component: TComponent): TValue;
 begin
 
-   case FTypeInfoUI of
+   case FPropertyTypeUI.TypeKind of
       tkInteger, tkInt64 : Result := Integer.Parse(ValueToString(Value));
       tkFloat: Result := Double.Parse(ValueToString(Value));
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
+      tkEnumeration: Result := ValueFromEnumeration(Value);
    end;
 
 end;
@@ -42,18 +44,32 @@ function TGenericConverter.coerceToVM(Value: TValue;
   Component: TComponent): TValue;
 begin
 
-   case FTypeInfoVM of
+   case FPropertyTypeVM.TypeKind of
       tkInteger, tkInt64 : Result := Integer.Parse(ValueToString(Value));
       tkFloat: Result := Double.Parse(ValueToString(Value));
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
+      tkEnumeration: Result := ValueFromEnumeration(Value);
    end;
 
 end;
 
-constructor TGenericConverter.Create(TypeInfoUI, TypeInfoVM: TTypeKind);
+procedure TGenericConverter.SetPropertiesType(PropertyTypeUI,
+  PropertyTypeVM: TRttiType);
 begin
-   FTypeInfoUI := TypeInfoUI;
-   FTypeInfoVM := TypeInfoVM;
+   FPropertyTypeUI := PropertyTypeUI;
+   FPropertyTypeVM := PropertyTypeVM;
+end;
+
+function TGenericConverter.ValueFromEnumeration(Value: TValue): TValue;
+var
+   Name : String;
+begin
+
+   if not FPropertyTypeVM.Name.Equals(FPropertyTypeUI.Name) then
+      raise EIncompatibleDataConversionException.Create('Incompatible Data Conversion');
+
+   Result := Value;
+
 end;
 
 function TGenericConverter.ValueToString(Value: TValue): String;

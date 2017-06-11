@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 441
-  ClientWidth = 635
+  ClientHeight = 627
+  ClientWidth = 806
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -65,11 +65,11 @@ object Form1: TForm1
     Text = 'edtNome2'
   end
   object btn1: TButton
-    Left = 61
-    Top = 120
-    Width = 75
+    Left = 446
+    Top = 559
+    Width = 91
     Height = 25
-    Caption = 'btn1'
+    Caption = 'Reset Fields'
     TabOrder = 2
   end
   object Edit1: TEdit
@@ -94,7 +94,7 @@ object Form1: TForm1
     TabOrder = 5
   end
   object CheckBox1: TCheckBox
-    Left = 24
+    Left = 8
     Top = 354
     Width = 97
     Height = 17
@@ -124,5 +124,46 @@ object Form1: TForm1
     Height = 17
     Caption = 'RadioButton1'
     TabOrder = 9
+  end
+  object grp1: TGroupBox
+    Left = 400
+    Top = 251
+    Width = 185
+    Height = 105
+    Caption = 'grp1'
+    TabOrder = 10
+    object RadioButton2: TRadioButton
+      Left = 24
+      Top = 32
+      Width = 113
+      Height = 17
+      Caption = 'RadioButton2'
+      TabOrder = 0
+    end
+    object RadioButton3: TRadioButton
+      Left = 24
+      Top = 55
+      Width = 113
+      Height = 17
+      Caption = 'RadioButton3'
+      TabOrder = 1
+    end
+  end
+  object DateTimePicker1: TDateTimePicker
+    Left = 8
+    Top = 392
+    Width = 186
+    Height = 21
+    Date = 42896.690115127310000000
+    Time = 42896.690115127310000000
+    TabOrder = 11
+  end
+  object MonthCalendar1: TMonthCalendar
+    Left = 8
+    Top = 432
+    Width = 225
+    Height = 160
+    Date = 42896.690261493060000000
+    TabOrder = 12
   end
 end
