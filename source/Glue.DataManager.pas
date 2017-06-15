@@ -89,6 +89,8 @@ begin
 
    DataBinding;
 
+   Update('*');
+
 end;
 
 procedure TDataManager.DataBinding;
@@ -192,7 +194,7 @@ begin
    begin
 
       for Binder in FBinders.Values.ToArray do
-         Binder.UpdateView;
+         Binder.LoadData;
 
       Exit;
    end;
@@ -202,7 +204,7 @@ begin
 
    Binder := FBinders.Items[PropertyName];
 
-   Binder.UpdateView;
+   Binder.LoadData;
 
 end;
 

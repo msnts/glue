@@ -36,6 +36,9 @@ begin
       tkFloat: Result := Double.Parse(ValueToString(Value));
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
       tkEnumeration: Result := ValueFromEnumeration(Value);
+      tkClass: Result := Value.AsObject;
+   else
+      raise Exception.Create('Unsupported data conversion');
    end;
 
 end;

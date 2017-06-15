@@ -35,7 +35,8 @@ type
       procedure ProcessBinding();
    public
       constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging; Converter : IConverter; Context: TBindContext);
-      procedure UpdateView();
+      procedure LoadData();
+      procedure SaveData();
    end;
 
 implementation
@@ -104,7 +105,12 @@ begin
 
 end;
 
-procedure TBinding.UpdateView;
+procedure TBinding.SaveData;
+begin
+
+end;
+
+procedure TBinding.LoadData;
 var
    Value: TValue;
 begin
