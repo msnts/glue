@@ -6,6 +6,7 @@ uses
    System.Classes,
    Generics.Collections,
    Glue.Observer,
+   Glue.ActionListener,
    Glue.NotifyPropertyChanging,
    Glue.Attributes,
    Glue.Binding,
@@ -22,7 +23,7 @@ type
       procedure ReleaseData();
    end;
 
-   TDataManager = class(TInterfacedObject, IDataManager, IObserver)
+   TDataManager = class(TInterfacedObject, IDataManager, IObserver, IActionListener)
    private
       FView : TComponent;
       FViewModel : INotifyPropertyChanging;
@@ -37,6 +38,8 @@ type
       constructor Create(View : TComponent; ViewModel : INotifyPropertyChanging);
       destructor Destroy; override;
       procedure Update(const PropertyName: string);
+      procedure OnBeforeAction(ActionName : String);
+      procedure OnAfterAction(ActionName : String);
       procedure ReleaseData();
    end;
 
@@ -159,9 +162,25 @@ begin
 
 end;
 
+procedure TDataManager.OnAfterAction(ActionName: String);
+begin
+
+end;
+
+procedure TDataManager.OnBeforeAction(ActionName: String);
+begin
+
+end;
+
 procedure TDataManager.ReleaseData;
+var
+   Command : ICommand;
 begin
    FViewModel.Detach(Self);
+
+   for Command in FCommands.Values.ToArray do
+      Command.Detach(Self);
+
 end;
 
 procedure TDataManager.Update(const PropertyName: string);

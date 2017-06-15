@@ -6,8 +6,8 @@ type
 
    IActionListener = interface
       ['{2CB9ED17-6729-44A3-BB17-B1CC96FC6788}']
-      procedure OnBefore(CommandName : String);
-      procedure OnAfter(CommandName : String);
+      procedure OnBeforeAction(ActionName : String);
+      procedure OnAfterAction(ActionName : String);
    end;
 
 implementation
