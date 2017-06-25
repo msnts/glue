@@ -45,7 +45,7 @@ type
     MonthCalendar1: TMonthCalendar;
     RadioButton3: TRadioButton;
 
-   // [Load('target=Lines; source=Logs')]
+    [Load('target=Lines; source=Logs')]
     Memo1: TMemo;
   private
     { Private declarations }

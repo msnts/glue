@@ -1,3 +1,21 @@
+{ ******************************************************************************
+  Copyright 2017 Marcos Santos
+
+  Contact: marcos.santos@outlook.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  *****************************************************************************}
+
 unit Glue.Attributes;
 
 interface
@@ -51,18 +69,10 @@ type
 
    ViewModelAttribute = class(TCustomAttribute)
    private
-      FClassName : String;
+      FQualifiedClassName : String;
    public
-      constructor Create(const ClassName : String); overload;
-      property ClassName : String read FClassName;
-   end;
-
-   DataContextAttribute = class(TCustomAttribute)
-   private
-      FClassName : String;
-   public
-      constructor Create(const ClassName : String);
-      property ClassName : String read FClassName;
+      constructor Create(const QualifiedClassName : String);
+      property QualifiedClassName : String read FQualifiedClassName;
    end;
 
    ConverterAttribute = class(TCustomAttribute)
@@ -78,13 +88,13 @@ uses System.SysUtils;
 
 { ViewModelAttribute }
 
-constructor ViewModelAttribute.Create(const ClassName: String);
+constructor ViewModelAttribute.Create(const QualifiedClassName: String);
 begin
 
-   if ClassName.Trim.IsEmpty then
+   if QualifiedClassName.Trim.IsEmpty then
       raise Exception.Create('Class Name required');
 
-   FClassName := ClassName;
+   FQualifiedClassName := QualifiedClassName;
 end;
 
 { TBindBaseAttribute }
@@ -166,20 +176,11 @@ begin
    FHandlerName := HandlerName;
 end;
 
-{ DataContextAttribute }
-
-constructor DataContextAttribute.Create(const ClassName: String);
-begin
-   FClassName := ClassName;
-end;
-
 { NotifyChange }
 
 constructor NotifyChange.Create(const PropertyName: String);
-var
-   Name : string;
 begin
-   FPropertiesNames := PropertyName.Split([',']);
+   FPropertiesNames := PropertyName.Replace(' ', '').Split([',']);
 end;
 
 end.

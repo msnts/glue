@@ -1,3 +1,21 @@
+{ ******************************************************************************
+  Copyright 2017 Marcos Santos
+
+  Contact: marcos.santos@outlook.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  *****************************************************************************}
+
 unit Glue;
 
 interface
@@ -23,7 +41,6 @@ type
       FConverters : TDictionary<String, TClass>;
       FDependencyResolver : TDependencyResolver;
    private
-      procedure ProcessDataBind(View : TObject);
       class procedure ReleaseInstance();
       function GetViewModelInstance(ClassName : String) : TObject;
    public
@@ -36,7 +53,8 @@ type
       class procedure RegisterConverter(TypeClass : TClass);
       class procedure RegisterViewModel(ViewModel : TClass); overload;
       class procedure RegisterViewModel(QualifiedName : String; ClassType : TClass); overload;
-      class procedure RegisterView(QualifiedName : String; ClassType : TClass);
+      class procedure RegisterView(ClassType : TClass); overload;
+      class procedure RegisterView(QualifiedName : String; ClassType : TClass); overload;
    end;
 
 implementation
@@ -115,11 +133,6 @@ begin
 
 end;
 
-procedure TGlue.ProcessDataBind(View: TObject);
-begin
-
-end;
-
 class procedure TGlue.RegisterConverter(TypeClass: TClass);
 begin
    FInstance.FConverters.Add(TypeClass.QualifiedClassName, TypeClass);
@@ -127,12 +140,17 @@ end;
 
 class procedure TGlue.RegisterView(QualifiedName: String; ClassType: TClass);
 begin
-
+   FInstance.FViews.Add(QualifiedName, ClassType);
 end;
 
 class procedure TGlue.RegisterViewModel(ViewModel: TClass);
 begin
    RegisterViewModel(ViewModel.QualifiedClassName, ViewModel);
+end;
+
+class procedure TGlue.RegisterView(ClassType: TClass);
+begin
+   RegisterView(ClassType.QualifiedClassName, ClassType);
 end;
 
 class procedure TGlue.RegisterViewModel(QualifiedName: String; ClassType: TClass);
@@ -156,10 +174,10 @@ begin
 
    Application.CreateForm(ClassType, Form);
 
- {  Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
+    Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
 
    if not Assigned(Attribute) then
-      raise Exception.Create('View Model Not Found');   }
+      raise Exception.Create('View Model Not Found');
 
    ViewModel := GetViewModelInstance('UViewModelForm.TViewModelForm');
 

@@ -21,7 +21,9 @@ uses
   Glue.Exceptions in '..\source\Glue.Exceptions.pas',
   Glue.Binding.Impl.Command in '..\source\binding\impl\Glue.Binding.Impl.Command.pas',
   Glue.AttributeUtils in '..\source\Glue.AttributeUtils.pas',
-  Glue.Executions in '..\source\Glue.Executions.pas';
+  Glue.Executions in '..\source\Glue.Executions.pas',
+  URecordManagerView in 'URecordManagerView.pas' {RecordManagerView},
+  URecordManagerViewModel in 'URecordManagerViewModel.pas';
 
 {$R *.res}
 
@@ -34,5 +36,5 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
 
-  TGlue.GetInstance.Run(TForm1);
+  TGlue.GetInstance.Run(TRecordManagerView);
 end.

@@ -18,28 +18,36 @@ type
       FLabelCheck1 : String;
       FTestDate : TDate;
       FLogs : TStringList;
-   private
-      function GetLabelNome() : String;
-      procedure SetLabelNome(Texto : String);
-      function GetPrimeiroNome() : String;
-      procedure SetPrimeiroNome(Nome : String);
-      function GetSegundoNome() : String;
-      procedure SetSegundoNome(Nome : String);
-      function GetNumero1() : Integer;
-      procedure SetNumero1(Num : Integer);
-      function GetNumero2() : Double;
-      procedure SetNumero2(Num : Double);
-      function GetSoma : Double;
-      function GetEnableEdit1() : Boolean;
-      procedure SetEnableEdit1(Enable : Boolean);
-      function GetMsgNumChar() : String;
-      function GetTestDate() : TDate;
-   public
-      procedure OnClick(Sender : TObject; V : Integer);
-      procedure SetTestDate(Date : TDate); virtual;
    public
       constructor Create; virtual;
       destructor Destroy; override;
+      function GetLabelNome() : String;
+      procedure SetLabelNome(Texto : String); virtual;
+      function GetPrimeiroNome() : String;
+
+      [NotifyChange('SegundoNome, MsgNumChar')]
+      procedure SetPrimeiroNome(Nome : String); virtual;
+      function GetSegundoNome() : String;
+      procedure SetSegundoNome(Nome : String); virtual;
+      function GetNumero1() : Integer;
+      procedure SetNumero1(Num : Integer); virtual;
+      function GetNumero2() : Double;
+
+      [NotifyChange('ResultadoSoma')]
+      procedure SetNumero2(Num : Double); virtual;
+      function GetSoma : Double;
+      function GetEnableEdit1() : Boolean;
+
+      [NotifyChange('LabelCheck1')]
+      procedure SetEnableEdit1(Enable : Boolean); virtual;
+      function GetMsgNumChar() : String;
+      function GetTestDate() : TDate;
+
+      [NotifyChange('PrimeiroNome')]
+      procedure OnClick(Sender : TObject; V : Integer);
+
+      [NotifyChange('Logs')]
+      procedure SetTestDate(Date : TDate); virtual;
 
       property LabelNome : String read GetLabelNome write SetLabelNome;
       property PrimeiroNome : String read GetPrimeiroNome write SetPrimeiroNome;
@@ -118,7 +126,6 @@ begin
    Result := FTestDate;
 end;
 
-[NotifyChange('PrimeiroNome')]
 procedure TViewModelForm.OnClick(Sender : TObject; V : Integer);
 begin
 
@@ -126,7 +133,6 @@ begin
 
 end;
 
-[NotifyChange('LabelCheck1')]
 procedure TViewModelForm.SetEnableEdit1(Enable: Boolean);
 begin
 
@@ -147,13 +153,11 @@ begin
    FNumero1 := Num;
 end;
 
-[NotifyChange('ResultadoSoma')]
 procedure TViewModelForm.SetNumero2(Num: Double);
 begin
    FNumero2 := Num;
 end;
 
-[NotifyChange('SegundoNome, MsgNumChar')]
 procedure TViewModelForm.SetPrimeiroNome(Nome: String);
 begin
    FPrimeiroNome := Nome;
@@ -165,7 +169,6 @@ begin
    FSegundoNome := Nome;
 end;
 
-[NotifyChange('Logs')]
 procedure TViewModelForm.SetTestDate(Date: TDate);
 begin
 
