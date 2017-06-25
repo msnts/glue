@@ -7,8 +7,8 @@ uses
    Generics.Collections,
    Glue.Observer,
    Glue.ActionListener,
-   Glue.NotifyPropertyChanging,
    Glue.Attributes,
+   Glue.AttributeUtils,
    Glue.Binding,
    Glue.Binding.Impl.Binding,
    Glue.Binding.Command,
@@ -23,21 +23,24 @@ type
       procedure ReleaseData();
    end;
 
-   TDataManager = class(TInterfacedObject, IDataManager, IObserver, IActionListener)
+   TDataManager = class(TInterfacedObject, IDataManager, IActionListener)
    private
       FView : TComponent;
-      FViewModel : INotifyPropertyChanging;
+      FViewModel : TObject;
       FBinders : TDictionary<String, IBinding>;
       FCommands : TDictionary<String, ICommand>;
+      Fvmi: TVirtualMethodInterceptor;
    private
       procedure DataBinding();
       procedure AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
       procedure AddCommand(Field: TRttiField; Attr: CommandAttribute);
       function GetConverter(Field: TRttiField) : IConverter;
+      procedure OnAfter(Instance: TObject; Method: TRttiMethod; const Args: TArray<TValue>; var Result: TValue);
    public
-      constructor Create(View : TComponent; ViewModel : INotifyPropertyChanging);
+      constructor Create(View : TComponent; ViewModel : TObject);
       destructor Destroy; override;
-      procedure Update(const PropertyName: string);
+      procedure Update(const PropertyName: string); overload;
+      procedure Update(const PropertiesNames : TArray<string>); overload;
       procedure OnBeforeAction(ActionName : String);
       procedure OnAfterAction(ActionName : String);
       procedure ReleaseData();
@@ -74,18 +77,22 @@ begin
 end;
 
 constructor TDataManager.Create(View: TComponent;
-  ViewModel: INotifyPropertyChanging);
+  ViewModel: TObject);
 begin
 
    FView := View;
 
    FViewModel := ViewModel;
 
-   FViewModel.Attach(Self);
-
    FBinders := TDictionary<String, IBinding>.Create;
 
    FCommands := TDictionary<String, ICommand>.Create;
+
+   Fvmi := TVirtualMethodInterceptor.Create(FViewModel.ClassType);
+
+   Fvmi.OnAfter := OnAfter;
+
+   Fvmi.Proxify(FViewModel);
 
    DataBinding;
 
@@ -135,6 +142,8 @@ begin
 
    FCommands.Free;
 
+   Fvmi.Free;
+
    inherited;
 end;
 
@@ -164,6 +173,19 @@ begin
 
 end;
 
+procedure TDataManager.OnAfter(Instance: TObject; Method: TRttiMethod;
+  const Args: TArray<TValue>; var Result: TValue);
+var
+   Attribute : NotifyChange;
+begin
+
+   Attribute := TAttributeUtils.GetAttribute<NotifyChange>(Method);
+
+   if Assigned(Attribute) then
+      Update(Attribute.PropertiesNames);
+
+end;
+
 procedure TDataManager.OnAfterAction(ActionName: String);
 begin
 
@@ -178,10 +200,19 @@ procedure TDataManager.ReleaseData;
 var
    Command : ICommand;
 begin
-   FViewModel.Detach(Self);
 
    for Command in FCommands.Values.ToArray do
       Command.Detach(Self);
+
+end;
+
+procedure TDataManager.Update(const PropertiesNames: TArray<string>);
+var
+   Value : String;
+begin
+
+   for Value in PropertiesNames do
+      Update(Value);
 
 end;
 

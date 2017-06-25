@@ -14,14 +14,15 @@ uses
    Glue.BindableBase,
    Glue.Converter,
    Glue.Enum,
-   Glue.Converter.Impl.GenericConverter;
+   Glue.Converter.Impl.GenericConverter,
+   Glue.Exceptions;
 
 type
 
    TBinding = class(TInterfacedObject, IBinding)
    protected
       FComponent: TComponent;
-      FViewModel: INotifyPropertyChanging;
+      FViewModel: TObject;
       FMode: TModeBinding;
       FBindContext: TBindContext;
       FRTTIContext: TRttiContext;
@@ -34,7 +35,7 @@ type
       procedure OnChange(Sender: TObject);
       procedure ProcessBinding();
    public
-      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging; Converter : IConverter; Context: TBindContext);
+      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: TObject; Converter : IConverter; Context: TBindContext);
       procedure LoadData();
       procedure SaveData();
    end;
@@ -43,7 +44,7 @@ implementation
 
 { TBinding }
 
-constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: INotifyPropertyChanging; Converter : IConverter; Context: TBindContext);
+constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: TObject; Converter : IConverter; Context: TBindContext);
 begin
 
    FMode := Mode;
@@ -86,9 +87,15 @@ begin
 
    FPropertyVM := objType.GetProperty(FBindContext.AttributeVM);
 
+   if (FMode <> mbLoad) and not FPropertyVM.IsWritable then
+      raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FBindContext.AttributeVM + '" Property of the ViewModel is read-only');
+
    objType := FRTTIContext.GetType(FComponent.ClassType);
 
    FPropertyUI := objType.GetProperty(FBindContext.AttributeUI);
+
+   if (FMode = mbLoad) and not FPropertyUI.IsWritable then
+      raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FBindContext.AttributeUI + '" Property of the View is read-only');
 
    if FMode = mbLoad then
       Exit;

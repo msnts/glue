@@ -8,47 +8,54 @@ uses
    Glue.NotifyPropertyChanging,
    Glue.BindableBase,
    Glue.DataManager,
-   UViewModelForm;
+   Glue.AttributeUtils;
 
 type
+
+   TDependencyResolver = reference to function (ClassType : TClass) : TInterfacedObject;
 
    TGlue = class
    private
       class var FInstance : TGlue;
-      class var FConverters : TDictionary<String, TClass>;
    private
-      FViewModels : TDictionary<String, String>;
-      FContext : TRttiContext;
-      FCurrentType : TRttiType;
+      FViews : TDictionary<String, TClass>;
+      FViewModels : TDictionary<String, TClass>;
+      FConverters : TDictionary<String, TClass>;
+      FDependencyResolver : TDependencyResolver;
    private
-      procedure ProcessAutoRegister();
       procedure ProcessDataBind(View : TObject);
-      procedure RegisterViewModel(Attribute : ViewModelAttribute);
       class procedure ReleaseInstance();
-      function GetViewModelInstance(ViewName : String) : INotifyPropertyChanging;
+      function GetViewModelInstance(ClassName : String) : TObject;
    public
       class function GetInstance() : TGlue;
       constructor Create();
       destructor Destroy(); override;
-      procedure Initialize();
-      procedure Run(ClassName : TComponentClass);
+      procedure SetDependencyResolver(Resolver : TDependencyResolver);
+      procedure Run(ClassType : TComponentClass);
       function GetConverter(QualifiedClassName : String) : TClass;
       class procedure RegisterConverter(TypeClass : TClass);
+      class procedure RegisterViewModel(ViewModel : TClass); overload;
+      class procedure RegisterViewModel(QualifiedName : String; ClassType : TClass); overload;
+      class procedure RegisterView(QualifiedName : String; ClassType : TClass);
    end;
 
 implementation
-uses Glue.Exceptions;
+uses Glue.Exceptions, System.SysUtils;
 
 { TGlue }
 
 constructor TGlue.Create;
 begin
-   FViewModels := TDictionary<String, String>.Create;
+   FViewModels := TDictionary<String, TClass>.Create;
+   FViews := TDictionary<String, TClass>.Create;
+   FConverters := TDictionary<String, TClass>.Create;
 end;
 
 destructor TGlue.Destroy;
 begin
   FViewModels.Free;
+  FViews.Free;
+  FConverters.Free;
   inherited;
 end;
 
@@ -71,132 +78,113 @@ begin
    Result := Self.FInstance;
 end;
 
-function TGlue.GetViewModelInstance(ViewName: String): INotifyPropertyChanging;
+function TGlue.GetViewModelInstance(ClassName: String): TObject;
 var
-   ViewModelName : String;
-   Context : TRttiContext;
-   InstanceType : TRttiInstanceType;
+   ClassType: TClass;
+   c: TRttiContext;
+  t: TRttiType;
+  v: TValue;
 begin
 
-   if not FViewModels.ContainsKey(ViewName) then
+   if not FViewModels.ContainsKey(ClassName) then
       Exit(nil);
 
-   ViewModelName := FViewModels.Items[ViewName];
+   ClassType := FViewModels.Items[ClassName];
 
-   Context := TRttiContext.Create();
+   if Assigned(FDependencyResolver) then
+      Result := FDependencyResolver(ClassType)
+   else
+   begin
 
-   try
+      c:= TRttiContext.Create;
 
-     // InstanceType := (Context.FindType(ViewModelName) as TRttiInstanceType);
+      try
 
-    //  Result := InstanceType.MetaclassType.Create;
+         t:= c.GetType(ClassType);
 
-   Result := TViewModelForm.Create;
+         v:= t.GetMethod('Create').Invoke(t.AsInstance.MetaclassType,[]);
 
-   finally
-      Context.Free;
-   end;
-end;
+         Result := v.AsObject;
 
-procedure TGlue.Initialize;
-begin
-
-   FInstance.ProcessAutoRegister;
-
-end;
-
-procedure TGlue.ProcessAutoRegister;
-var
-   Attribute: TCustomAttribute;
-   typ : TRttiType;
-begin
-
-   FContext := TRttiContext.Create();
-
-   try
-      for typ in FContext.GetTypes() do
-      begin
-
-         FCurrentType := typ;
-
-         if FCurrentType.TypeKind <> tkClass then
-            continue;
-
-         for Attribute in FCurrentType.GetAttributes() do
-         begin
-
-            if Attribute is ViewModelAttribute then
-            begin
-               RegisterViewModel(ViewModelAttribute(Attribute));
-               break;
-            end;
-
-         end;
-
+      finally
+         c.Free;
       end;
-   finally
-      FContext.Free;
+
+
    end;
 
 end;
 
 procedure TGlue.ProcessDataBind(View: TObject);
-var
-   DataManager : IObserver;
-
 begin
 
 end;
 
 class procedure TGlue.RegisterConverter(TypeClass: TClass);
 begin
-   FConverters.Add(TypeClass.QualifiedClassName, TypeClass);
+   FInstance.FConverters.Add(TypeClass.QualifiedClassName, TypeClass);
 end;
 
-procedure TGlue.RegisterViewModel(Attribute: ViewModelAttribute);
-var
-   ClassType : TClass;
-   InstanceType : TRttiInstanceType;
+class procedure TGlue.RegisterView(QualifiedName: String; ClassType: TClass);
 begin
 
-   InstanceType := (FContext.FindType('UViewModelForm.TViewModelForm') as TRttiInstanceType);
+end;
 
+class procedure TGlue.RegisterViewModel(ViewModel: TClass);
+begin
+   RegisterViewModel(ViewModel.QualifiedClassName, ViewModel);
+end;
 
-
-   FViewModels.Add(FCurrentType.QualifiedName, Attribute.ClassName);
+class procedure TGlue.RegisterViewModel(QualifiedName: String; ClassType: TClass);
+begin
+   FInstance.FViewModels.Add(QualifiedName, ClassType);
 end;
 
 class procedure TGlue.ReleaseInstance;
 begin
    if Assigned(Self.FInstance) then
     Self.FInstance.Free;
-
-    FConverters.Free;
-
 end;
 
-procedure TGlue.Run(ClassName : TComponentClass);
+procedure TGlue.Run(ClassType : TComponentClass);
 var
    Form : TForm;
-   ViewModel : INotifyPropertyChanging;
+   ViewModel : TObject;
    DataMananger : IDataManager;
+   Attribute : ViewModelAttribute;
 begin
 
-   Application.CreateForm(ClassName, Form);
+   Application.CreateForm(ClassType, Form);
 
-   ViewModel := GetViewModelInstance(Form.QualifiedClassName);
+ {  Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
 
-   DataMananger := TDataManager.Create(Form, ViewModel);
+   if not Assigned(Attribute) then
+      raise Exception.Create('View Model Not Found');   }
+
+   ViewModel := GetViewModelInstance('UViewModelForm.TViewModelForm');
 
    try
+
+      DataMananger := TDataManager.Create(Form, ViewModel);
+
       Application.Run;
    finally
       DataMananger.ReleaseData;
+
+      ViewModel.Free;
    end;
 
 end;
 
+procedure TGlue.SetDependencyResolver(Resolver: TDependencyResolver);
+begin
+   FDependencyResolver := Resolver;
+end;
+
 initialization
+
+   TGlue.GetInstance;
+
 finalization
    TGlue.ReleaseInstance;
 end.

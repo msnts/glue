@@ -35,17 +35,33 @@ type
       FTriggerName : String;
       FHandlerName : String;
    public
-      constructor Create(HandlerName : String); overload;
-      constructor Create(TriggerName, HandlerName : String); overload;
+      constructor Create(const HandlerName : String); overload;
+      constructor Create(const TriggerName, HandlerName : String); overload;
       property TriggerName : String read FTriggerName;
       property HandlerName : String read FHandlerName;
+   end;
+
+   NotifyChange = class(TCustomAttribute)
+   private
+      FPropertiesNames : TArray<string>;
+   public
+      constructor Create(const PropertyName : String); overload;
+      property PropertiesNames : TArray<string> read FPropertiesNames;
    end;
 
    ViewModelAttribute = class(TCustomAttribute)
    private
       FClassName : String;
    public
-      constructor Create(ClassName : String);
+      constructor Create(const ClassName : String); overload;
+      property ClassName : String read FClassName;
+   end;
+
+   DataContextAttribute = class(TCustomAttribute)
+   private
+      FClassName : String;
+   public
+      constructor Create(const ClassName : String);
       property ClassName : String read FClassName;
    end;
 
@@ -58,11 +74,16 @@ type
    end;
 
 implementation
+uses System.SysUtils;
 
 { ViewModelAttribute }
 
-constructor ViewModelAttribute.Create(ClassName: String);
+constructor ViewModelAttribute.Create(const ClassName: String);
 begin
+
+   if ClassName.Trim.IsEmpty then
+      raise Exception.Create('Class Name required');
+
    FClassName := ClassName;
 end;
 
@@ -133,16 +154,32 @@ end;
 
 { CommandAttribute }
 
-constructor CommandAttribute.Create(HandlerName: String);
+constructor CommandAttribute.Create(const HandlerName: String);
 begin
    FTriggerName := 'OnClick';
    FHandlerName := HandlerName;
 end;
 
-constructor CommandAttribute.Create(TriggerName, HandlerName: String);
+constructor CommandAttribute.Create(const TriggerName, HandlerName: String);
 begin
    FTriggerName := TriggerName;
    FHandlerName := HandlerName;
+end;
+
+{ DataContextAttribute }
+
+constructor DataContextAttribute.Create(const ClassName: String);
+begin
+   FClassName := ClassName;
+end;
+
+{ NotifyChange }
+
+constructor NotifyChange.Create(const PropertyName: String);
+var
+   Name : string;
+begin
+   FPropertiesNames := PropertyName.Split([',']);
 end;
 
 end.

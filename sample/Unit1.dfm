@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 0
   Caption = 'Form1'
   ClientHeight = 627
-  ClientWidth = 806
+  ClientWidth = 979
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -44,7 +44,7 @@ object Form1: TForm1
   object Label4: TLabel
     Left = 188
     Top = 32
-    Width = 77
+    Width = 31
     Height = 13
     Caption = 'Label4'
   end
@@ -65,8 +65,8 @@ object Form1: TForm1
     Text = 'edtNome2'
   end
   object btn1: TButton
-    Left = 446
-    Top = 559
+    Left = 678
+    Top = 331
     Width = 91
     Height = 25
     Caption = 'Reset Fields'
@@ -150,20 +150,29 @@ object Form1: TForm1
     end
   end
   object DateTimePicker1: TDateTimePicker
-    Left = 8
-    Top = 392
+    Left = 656
+    Top = 88
     Width = 186
     Height = 21
-    Date = 42896.690115127310000000
-    Time = 42896.690115127310000000
+    Date = 42896.690115127320000000
+    Time = 42896.690115127320000000
     TabOrder = 11
   end
   object MonthCalendar1: TMonthCalendar
-    Left = 8
-    Top = 432
+    Left = 656
+    Top = 136
     Width = 225
     Height = 160
-    Date = 42896.690261493060000000
+    Date = 42896.700112268520000000
     TabOrder = 12
+  end
+  object Memo1: TMemo
+    Left = 8
+    Top = 424
+    Width = 963
+    Height = 195
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 13
   end
 end

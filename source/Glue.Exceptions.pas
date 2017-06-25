@@ -13,6 +13,8 @@ type
 
    ECommandTriggerNotFoundException = class(Exception);
 
+   EInvalidDataBindingException = class(Exception);
+
 
 implementation
 

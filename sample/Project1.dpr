@@ -19,7 +19,9 @@ uses
   Glue.Binding.Command in '..\source\binding\Glue.Binding.Command.pas',
   Glue.Converter.Impl.GenericConverter in '..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas',
   Glue.Exceptions in '..\source\Glue.Exceptions.pas',
-  Glue.Binding.Impl.Command in '..\source\binding\impl\Glue.Binding.Impl.Command.pas';
+  Glue.Binding.Impl.Command in '..\source\binding\impl\Glue.Binding.Impl.Command.pas',
+  Glue.AttributeUtils in '..\source\Glue.AttributeUtils.pas',
+  Glue.Executions in '..\source\Glue.Executions.pas';
 
 {$R *.res}
 
@@ -28,8 +30,6 @@ begin
   {$IFDEF DEBUG}
   ReportMemoryLeaksOnShutdown := True;
   {$ENDIF}
-
-  TGlue.GetInstance.Initialize;
 
   Application.Initialize;
   Application.MainFormOnTaskbar := True;

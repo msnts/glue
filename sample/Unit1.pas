@@ -11,9 +11,9 @@ type
 
   [ViewModel('UViewModelForm.TViewModelForm')]
   TForm1 = class(TForm)
-    //[Load('target=Caption; source=LabelNome')]
+    [Load('target=Caption; source=LabelNome')]
     lbl1: TLabel;
-    [Bind('target=Text; source=PrimeiroNome')]
+  //  [Bind('target=Text; source=PrimeiroNome')]
     edtNome: TEdit;
    // [Bind('target=Text; source=SegundoNome')]
     edtNome2: TEdit;
@@ -26,22 +26,27 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
-   // [Bind('target=Text; source=ResultadoSoma')]
+   // [Load('target=Text; source=ResultadoSoma')]
     Edit3: TEdit;
 
-    [Save('target=Checked; source=EnableCheck1')]
-    [Load('target=Caption; source=LabelCheck1')]
+   // [Save('target=Checked; source=EnableCheck1')]
+   // [Load('target=Caption; source=LabelCheck1')]
     CheckBox1: TCheckBox;
     ComboBox1: TComboBox;
     ListBox1: TListBox;
     RadioButton1: TRadioButton;
-    //[Load('target=Caption; source=MsgNumChar')]
+   // [Load('target=Caption; source=MsgNumChar')]
     Label4: TLabel;
     grp1: TGroupBox;
     RadioButton2: TRadioButton;
     DateTimePicker1: TDateTimePicker;
+
+    [Bind('target=Date; source=TestDate')]
     MonthCalendar1: TMonthCalendar;
     RadioButton3: TRadioButton;
+
+   // [Load('target=Lines; source=Logs')]
+    Memo1: TMemo;
   private
     { Private declarations }
   public

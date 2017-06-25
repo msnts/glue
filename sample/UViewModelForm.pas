@@ -2,11 +2,13 @@ unit UViewModelForm;
 
 interface
 uses
-   Glue.BindableBase;
+   Glue,
+   Glue.Attributes,
+   System.Classes;
 
 type
 
-   TViewModelForm = class(TBindableBase)
+   TViewModelForm = class
    private
       FLabelNome : String;
       FPrimeiroNome : String;
@@ -14,6 +16,8 @@ type
       FNumero1 : Integer;
       FNumero2 : Double;
       FLabelCheck1 : String;
+      FTestDate : TDate;
+      FLogs : TStringList;
    private
       function GetLabelNome() : String;
       procedure SetLabelNome(Texto : String);
@@ -29,9 +33,14 @@ type
       function GetEnableEdit1() : Boolean;
       procedure SetEnableEdit1(Enable : Boolean);
       function GetMsgNumChar() : String;
+      function GetTestDate() : TDate;
    public
       procedure OnClick(Sender : TObject; V : Integer);
+      procedure SetTestDate(Date : TDate); virtual;
    public
+      constructor Create; virtual;
+      destructor Destroy; override;
+
       property LabelNome : String read GetLabelNome write SetLabelNome;
       property PrimeiroNome : String read GetPrimeiroNome write SetPrimeiroNome;
       property SegundoNome : String Read GetSegundoNome write SetSegundoNome;
@@ -41,6 +50,8 @@ type
       property EnableCheck1 : Boolean read GetEnableEdit1 write SetEnableEdit1;
       property LabelCheck1 : String read FLabelCheck1;
       property MsgNumChar : String read GetMsgNumChar;
+      property TestDate : TDate read GetTestDate write SetTestDate;
+      property Logs : TStringList read FLogs;
    end;
 
 
@@ -49,6 +60,19 @@ uses System.sysutils;
 
 { TViewModelForm }
 
+constructor TViewModelForm.Create;
+begin
+   FLogs := TStringList.Create;
+   FLogs.Add('Start Logs');
+   FLabelNome := 'Label Nome Default';
+end;
+
+destructor TViewModelForm.Destroy;
+begin
+  FLogs.Free;
+  inherited;
+end;
+
 function TViewModelForm.GetEnableEdit1: Boolean;
 begin
    Result := True;
@@ -56,7 +80,7 @@ end;
 
 function TViewModelForm.GetLabelNome: String;
 begin
-   Result := FLabelCheck1;
+   Result := FLabelNome;
 end;
 
 function TViewModelForm.GetMsgNumChar: String;
@@ -89,15 +113,20 @@ begin
    Result := FNumero1 + FNumero2;
 end;
 
+function TViewModelForm.GetTestDate: TDate;
+begin
+   Result := FTestDate;
+end;
+
+[NotifyChange('PrimeiroNome')]
 procedure TViewModelForm.OnClick(Sender : TObject; V : Integer);
 begin
 
    FPrimeiroNome := 'Onclick ' + Sender.ClassName;
 
-   Notify('PrimeiroNome');
-
 end;
 
+[NotifyChange('LabelCheck1')]
 procedure TViewModelForm.SetEnableEdit1(Enable: Boolean);
 begin
 
@@ -106,7 +135,6 @@ begin
    else
       FLabelCheck1 := 'Enable Off';
 
-   Notify('LabelCheck1');
 end;
 
 procedure TViewModelForm.SetLabelNome(Texto: String);
@@ -119,23 +147,35 @@ begin
    FNumero1 := Num;
 end;
 
+[NotifyChange('ResultadoSoma')]
 procedure TViewModelForm.SetNumero2(Num: Double);
 begin
    FNumero2 := Num;
-   Notify('ResultadoSoma');
 end;
 
+[NotifyChange('SegundoNome, MsgNumChar')]
 procedure TViewModelForm.SetPrimeiroNome(Nome: String);
 begin
    FPrimeiroNome := Nome;
    FSegundoNome := Nome;
-
-   Notify(['SegundoNome', 'MsgNumChar']);
 end;
 
 procedure TViewModelForm.SetSegundoNome(Nome: String);
 begin
    FSegundoNome := Nome;
 end;
+
+[NotifyChange('Logs')]
+procedure TViewModelForm.SetTestDate(Date: TDate);
+begin
+
+   FTestDate := Date;
+
+   FLogs.Add('TestDate: ' + FormatDateTime('dd/mm/yyyy', Date));
+
+end;
+
+initialization
+TGlue.RegisterViewModel(TViewModelForm);
 
 end.

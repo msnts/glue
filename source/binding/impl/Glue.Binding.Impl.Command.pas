@@ -17,7 +17,7 @@ type
    TCommand = class(TInterfacedObject, ICommand)
    private
       FComponent: TComponent;
-      FViewModel: INotifyPropertyChanging;
+      FViewModel: TObject;
       FRTTIContext: TRttiContext;
       FInternalDispatcher: TMethod;
       FHandlerMethod : TMethod;
@@ -30,7 +30,7 @@ type
       function GetCommandHandler() : TRttiMethod;
       procedure InternalInvoke(Params: PParameters; StackSize: Integer);
    public
-      constructor Create(Component: TComponent; ViewModel: INotifyPropertyChanging; const TriggerName, HandlerName : String);
+      constructor Create(Component: TComponent; ViewModel: TObject; const TriggerName, HandlerName : String);
       destructor Destroy(); override;
       procedure Attach(Listener: IActionListener);
       procedure Detach(Listener: IActionListener);
@@ -74,7 +74,7 @@ begin
 end;
 
 constructor TCommand.Create(Component: TComponent;
-  ViewModel: INotifyPropertyChanging; const TriggerName, HandlerName: String);
+  ViewModel: TObject; const TriggerName, HandlerName: String);
 begin
 
    FComponent := Component;
