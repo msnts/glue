@@ -22,51 +22,47 @@ interface
 uses
    Glue,
    Glue.DataManager,
-   Vcl.Forms;
+   Glue.Attributes,
+   Glue.AttributeUtils,
+   Vcl.Forms,
+   System.Classes,
+   System.Rtti;
 
 type
 
    TExecutions = class
    public
-      class function CreateView<T>(QualifiedClassName: String) : T;
-      class function CreateViewModel<T>(QualifiedClassName: String) : T;
-      class procedure ShowWindows(QualifiedClassName: String);
+      class procedure ShowWindow(QualifiedClassName: String);
    end;
 
 implementation
 
 { TExecutions }
 
-class function TExecutions.CreateView<T>(QualifiedClassName: String): T;
-begin
-
-end;
-
-class function TExecutions.CreateViewModel<T>(QualifiedClassName: String): T;
-begin
-
-end;
-
-class procedure TExecutions.ShowWindows(QualifiedClassName: String);
+class procedure TExecutions.ShowWindow(QualifiedClassName: String);
 var
-   Windows : TForm;
+   Window : TForm;
    DataMananger : IDataManager;
    ViewModel : TObject;
+   Attribute : ViewModelAttribute;
 begin
 
    try
 
-      Windows := CreateView<TForm>(QualifiedClassName);
+      Window := TGlue.GetInstance.Resolve(QualifiedClassName) as TForm;
 
-     // ViewModel := CreateViewModel<TObject>();
+      Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(Window.ClassType);
 
-      DataMananger := TDataManager.Create(Windows, ViewModel);
+      ViewModel := TGlue.GetInstance.Resolve(Attribute.QualifiedClassName);
 
-      Windows.ShowModal;
+      DataMananger := TDataManager.Create(Window, ViewModel);
+
+      Window.ShowModal;
 
    finally
       DataMananger.ReleaseData;
-      Windows.Free;
+      ViewModel.Free;
+      Window.Free;
    end;
 
 end;

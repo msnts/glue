@@ -1,4 +1,4 @@
-unit UViewModelForm;
+unit URecordViewModel;
 
 interface
 uses
@@ -8,7 +8,7 @@ uses
 
 type
 
-   TViewModelForm = class
+   TRecordViewModel = class
    private
       FLabelNome : String;
       FPrimeiroNome : String;
@@ -68,72 +68,72 @@ uses System.sysutils;
 
 { TViewModelForm }
 
-constructor TViewModelForm.Create;
+constructor TRecordViewModel.Create;
 begin
    FLogs := TStringList.Create;
    FLogs.Add('Start Logs');
    FLabelNome := 'Label Nome Default';
 end;
 
-destructor TViewModelForm.Destroy;
+destructor TRecordViewModel.Destroy;
 begin
   FLogs.Free;
   inherited;
 end;
 
-function TViewModelForm.GetEnableEdit1: Boolean;
+function TRecordViewModel.GetEnableEdit1: Boolean;
 begin
    Result := True;
 end;
 
-function TViewModelForm.GetLabelNome: String;
+function TRecordViewModel.GetLabelNome: String;
 begin
    Result := FLabelNome;
 end;
 
-function TViewModelForm.GetMsgNumChar: String;
+function TRecordViewModel.GetMsgNumChar: String;
 begin
    Result := 'Count: ' + String.parse(FPrimeiroNome.Length);
 end;
 
-function TViewModelForm.GetNumero1: Integer;
+function TRecordViewModel.GetNumero1: Integer;
 begin
    Result := FNumero1;
 end;
 
-function TViewModelForm.GetNumero2: Double;
+function TRecordViewModel.GetNumero2: Double;
 begin
    Result := FNumero2;
 end;
 
-function TViewModelForm.GetPrimeiroNome: String;
+function TRecordViewModel.GetPrimeiroNome: String;
 begin
    Result := FPrimeiroNome;
 end;
 
-function TViewModelForm.GetSegundoNome: String;
+function TRecordViewModel.GetSegundoNome: String;
 begin
    Result := FSegundoNome;
 end;
 
-function TViewModelForm.GetSoma: Double;
+function TRecordViewModel.GetSoma: Double;
 begin
    Result := FNumero1 + FNumero2;
 end;
 
-function TViewModelForm.GetTestDate: TDate;
+function TRecordViewModel.GetTestDate: TDate;
 begin
    Result := FTestDate;
 end;
 
-procedure TViewModelForm.OnClick(Sender : TObject; V : Integer);
+procedure TRecordViewModel.OnClick(Sender : TObject; V : Integer);
 begin
 
    FPrimeiroNome := 'Onclick ' + Sender.ClassName;
 
 end;
 
-procedure TViewModelForm.SetEnableEdit1(Enable: Boolean);
+procedure TRecordViewModel.SetEnableEdit1(Enable: Boolean);
 begin
 
    if Enable then
@@ -143,33 +143,33 @@ begin
 
 end;
 
-procedure TViewModelForm.SetLabelNome(Texto: String);
+procedure TRecordViewModel.SetLabelNome(Texto: String);
 begin
 
 end;
 
-procedure TViewModelForm.SetNumero1(Num: Integer);
+procedure TRecordViewModel.SetNumero1(Num: Integer);
 begin
    FNumero1 := Num;
 end;
 
-procedure TViewModelForm.SetNumero2(Num: Double);
+procedure TRecordViewModel.SetNumero2(Num: Double);
 begin
    FNumero2 := Num;
 end;
 
-procedure TViewModelForm.SetPrimeiroNome(Nome: String);
+procedure TRecordViewModel.SetPrimeiroNome(Nome: String);
 begin
    FPrimeiroNome := Nome;
    FSegundoNome := Nome;
 end;
 
-procedure TViewModelForm.SetSegundoNome(Nome: String);
+procedure TRecordViewModel.SetSegundoNome(Nome: String);
 begin
    FSegundoNome := Nome;
 end;
 
-procedure TViewModelForm.SetTestDate(Date: TDate);
+procedure TRecordViewModel.SetTestDate(Date: TDate);
 begin
 
    FTestDate := Date;
@@ -179,6 +179,6 @@ begin
 end;
 
 initialization
-TGlue.RegisterViewModel(TViewModelForm);
+TGlue.RegisterType(TRecordViewModel);
 
 end.

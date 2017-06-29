@@ -187,7 +187,7 @@ begin
    if ConverterName.Equals('default') then
       Exit(TGenericConverter.Create);
 
-   Result := TInterfacedObject(TGlue.GetInstance.GetConverter(ConverterName)).Create as IConverter;
+   Result := TInterfacedObject(TGlue.GetInstance.Resolve(ConverterName)) as IConverter;
 
 end;
 

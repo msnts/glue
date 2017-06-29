@@ -85,11 +85,11 @@
         <DCCReference Include="..\source\Glue.NotifyPropertyChanging.pas"/>
         <DCCReference Include="..\source\Glue.Observer.pas"/>
         <DCCReference Include="..\source\Glue.pas"/>
-        <DCCReference Include="Unit1.pas">
+        <DCCReference Include="URecordView.pas">
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="UViewModelForm.pas"/>
+        <DCCReference Include="URecordViewModel.pas"/>
         <DCCReference Include="..\source\Glue.Enum.pas"/>
         <DCCReference Include="..\source\Glue.ActionListener.pas"/>
         <DCCReference Include="..\source\binding\Glue.Binding.Command.pas"/>

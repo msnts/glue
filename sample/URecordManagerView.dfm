@@ -26,7 +26,7 @@ object RecordManagerView: TRecordManagerView
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
-  object Button1: TButton
+  object BtnAdd: TButton
     Left = 8
     Top = 383
     Width = 75
@@ -34,7 +34,7 @@ object RecordManagerView: TRecordManagerView
     Caption = 'Add'
     TabOrder = 1
   end
-  object Button2: TButton
+  object BtnEdit: TButton
     Left = 89
     Top = 383
     Width = 75
@@ -42,7 +42,7 @@ object RecordManagerView: TRecordManagerView
     Caption = 'Edit'
     TabOrder = 2
   end
-  object Button3: TButton
+  object BtnDelete: TButton
     Left = 170
     Top = 383
     Width = 75

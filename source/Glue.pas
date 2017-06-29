@@ -36,25 +36,20 @@ type
    private
       class var FInstance : TGlue;
    private
-      FViews : TDictionary<String, TClass>;
-      FViewModels : TDictionary<String, TClass>;
-      FConverters : TDictionary<String, TClass>;
+      FTypes : TDictionary<String, TClass>;
       FDependencyResolver : TDependencyResolver;
    private
       class procedure ReleaseInstance();
-      function GetViewModelInstance(ClassName : String) : TObject;
+      function GetRegisteredType(const QualifiedClassName : String) : TClass;
    public
       class function GetInstance() : TGlue;
       constructor Create();
       destructor Destroy(); override;
       procedure SetDependencyResolver(Resolver : TDependencyResolver);
       procedure Run(ClassType : TComponentClass);
-      function GetConverter(QualifiedClassName : String) : TClass;
-      class procedure RegisterConverter(TypeClass : TClass);
-      class procedure RegisterViewModel(ViewModel : TClass); overload;
-      class procedure RegisterViewModel(QualifiedName : String; ClassType : TClass); overload;
-      class procedure RegisterView(ClassType : TClass); overload;
-      class procedure RegisterView(QualifiedName : String; ClassType : TClass); overload;
+      function Resolve(const QualifiedClassName : String) : TObject;
+      class procedure RegisterType(ClassType : TClass); overload;
+      class procedure RegisterType(QualifiedName : String; ClassType : TClass); overload;
    end;
 
 implementation
@@ -64,27 +59,15 @@ uses Glue.Exceptions, System.SysUtils;
 
 constructor TGlue.Create;
 begin
-   FViewModels := TDictionary<String, TClass>.Create;
-   FViews := TDictionary<String, TClass>.Create;
-   FConverters := TDictionary<String, TClass>.Create;
+
+   FTypes := TDictionary<String, TClass>.Create;
+
 end;
 
 destructor TGlue.Destroy;
 begin
-  FViewModels.Free;
-  FViews.Free;
-  FConverters.Free;
+  FTypes.Free;
   inherited;
-end;
-
-function TGlue.GetConverter(QualifiedClassName: String): TClass;
-begin
-
-   if not FConverters.ContainsKey(QualifiedClassName) then
-      raise EConverterNotFoundException.Create('Converter Not Found');
-
-   Result := FConverters.Items[QualifiedClassName];
-
 end;
 
 class function TGlue.GetInstance: TGlue;
@@ -96,21 +79,47 @@ begin
    Result := Self.FInstance;
 end;
 
-function TGlue.GetViewModelInstance(ClassName: String): TObject;
+
+function TGlue.GetRegisteredType(const QualifiedClassName: String): TClass;
+begin
+
+   if not FTypes.ContainsKey(QualifiedClassName) then
+      raise Exception.Create('Type register not found');
+
+   Result := FTypes.Items[QualifiedClassName];
+
+end;
+
+class procedure TGlue.RegisterType(QualifiedName: String; ClassType: TClass);
+begin
+   FInstance.FTypes.Add(QualifiedName, ClassType);
+end;
+
+class procedure TGlue.RegisterType(ClassType : TClass);
+begin
+   RegisterType(ClassType.QualifiedClassName, ClassType);
+end;
+
+class procedure TGlue.ReleaseInstance;
+begin
+   if Assigned(Self.FInstance) then
+    Self.FInstance.Free;
+end;
+
+function TGlue.Resolve(const QualifiedClassName: String): TObject;
 var
-   ClassType: TClass;
+   ClsType : TClass;
    c: TRttiContext;
   t: TRttiType;
   v: TValue;
+  Method : TRttiMethod;
+  Parameters : TArray<TRttiParameter>;
 begin
 
-   if not FViewModels.ContainsKey(ClassName) then
-      Exit(nil);
-
-   ClassType := FViewModels.Items[ClassName];
+   ClsType := GetRegisteredType(QualifiedClassName);
 
    if Assigned(FDependencyResolver) then
-      Result := FDependencyResolver(ClassType)
+      Result := FDependencyResolver(ClsType)
    else
    begin
 
@@ -118,9 +127,16 @@ begin
 
       try
 
-         t:= c.GetType(ClassType);
+         t:= c.GetType(ClsType);
 
-         v:= t.GetMethod('Create').Invoke(t.AsInstance.MetaclassType,[]);
+         Method := t.GetMethod('Create');
+
+         Parameters := Method.GetParameters;
+
+         if Length(Parameters) = 1 then
+            v:= Method.Invoke(t.AsInstance.MetaclassType,[nil])
+         else
+            v:= Method.Invoke(t.AsInstance.MetaclassType,[]);
 
          Result := v.AsObject;
 
@@ -133,36 +149,6 @@ begin
 
 end;
 
-class procedure TGlue.RegisterConverter(TypeClass: TClass);
-begin
-   FInstance.FConverters.Add(TypeClass.QualifiedClassName, TypeClass);
-end;
-
-class procedure TGlue.RegisterView(QualifiedName: String; ClassType: TClass);
-begin
-   FInstance.FViews.Add(QualifiedName, ClassType);
-end;
-
-class procedure TGlue.RegisterViewModel(ViewModel: TClass);
-begin
-   RegisterViewModel(ViewModel.QualifiedClassName, ViewModel);
-end;
-
-class procedure TGlue.RegisterView(ClassType: TClass);
-begin
-   RegisterView(ClassType.QualifiedClassName, ClassType);
-end;
-
-class procedure TGlue.RegisterViewModel(QualifiedName: String; ClassType: TClass);
-begin
-   FInstance.FViewModels.Add(QualifiedName, ClassType);
-end;
-
-class procedure TGlue.ReleaseInstance;
-begin
-   if Assigned(Self.FInstance) then
-    Self.FInstance.Free;
-end;
 
 procedure TGlue.Run(ClassType : TComponentClass);
 var
@@ -174,12 +160,12 @@ begin
 
    Application.CreateForm(ClassType, Form);
 
-    Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
+   Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
 
    if not Assigned(Attribute) then
       raise Exception.Create('View Model Not Found');
 
-   ViewModel := GetViewModelInstance('UViewModelForm.TViewModelForm');
+   ViewModel := Resolve('URecordManagerViewModel.TRecordManagerViewModel');
 
    try
 

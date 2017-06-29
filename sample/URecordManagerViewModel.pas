@@ -23,7 +23,7 @@ implementation
 procedure TRecordManagerViewModel.OnAddClick(Sender: TObject);
 begin
 
-   TExecutions.ShowWindows('RecordManagerView.TRecordManagerView');
+   TExecutions.ShowWindow('URecordView.TForm1');
 
 end;
 
@@ -38,6 +38,6 @@ begin
 end;
 
 initialization
-TGlue.RegisterViewModel(TRecordManagerViewModel);
+TGlue.RegisterType(TRecordManagerViewModel);
 
 end.

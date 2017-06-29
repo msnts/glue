@@ -12,9 +12,10 @@ type
   TRecordManagerView = class(TForm)
     DBGrid1: TDBGrid;
     DataSource1: TDataSource;
-    Button1: TButton;
-    Button2: TButton;
-    Button3: TButton;
+    [Command('OnAddClick')]
+    BtnAdd: TButton;
+    BtnEdit: TButton;
+    BtnDelete: TButton;
   private
     { Private declarations }
   public
@@ -30,6 +31,6 @@ implementation
 
 initialization
 
-TGlue.RegisterView(TRecordManagerView);
+TGlue.RegisterType(TRecordManagerView);
 
 end.

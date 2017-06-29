@@ -1,11 +1,10 @@
-unit Unit1;
+unit URecordView;
 
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Glue.Attributes, Vcl.ComCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Glue, Glue.Attributes, Vcl.ComCtrls;
 
 type
 
@@ -59,5 +58,9 @@ var
 implementation
 
 {$R *.dfm}
+
+initialization
+
+TGlue.RegisterType(TForm1);
 
 end.
