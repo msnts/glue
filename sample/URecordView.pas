@@ -8,7 +8,7 @@ uses
 
 type
 
-  [ViewModel('UViewModelForm.TViewModelForm')]
+  [ViewModel('URecordViewModel.TRecordViewModel')]
   TForm1 = class(TForm)
     [Load('target=Caption; source=LabelNome')]
     lbl1: TLabel;

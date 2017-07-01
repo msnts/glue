@@ -32,37 +32,54 @@ type
 
    TExecutions = class
    public
-      class procedure ShowWindow(QualifiedClassName: String);
+      class procedure ShowWindow(const QualifiedClassName: String); overload;
+      class procedure ShowWindow(const QualifiedClassName: String; Event : TObject); overload;
    end;
 
 implementation
 
 { TExecutions }
 
-class procedure TExecutions.ShowWindow(QualifiedClassName: String);
+class procedure TExecutions.ShowWindow(const QualifiedClassName: String);
+begin
+   ShowWindow(QualifiedClassName, nil);
+end;
+
+class procedure TExecutions.ShowWindow(const QualifiedClassName: String;
+  Event: TObject);
 var
    Window : TForm;
    DataMananger : IDataManager;
    ViewModel : TObject;
    Attribute : ViewModelAttribute;
+   Glue : TGlue;
 begin
+
+   Glue := TGlue.GetInstance;
 
    try
 
-      Window := TGlue.GetInstance.Resolve(QualifiedClassName) as TForm;
+      Window := Glue.Resolve(QualifiedClassName) as TForm;
 
       Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(Window.ClassType);
 
-      ViewModel := TGlue.GetInstance.Resolve(Attribute.QualifiedClassName);
+      ViewModel := Glue.Resolve(Attribute.QualifiedClassName);
 
       DataMananger := TDataManager.Create(Window, ViewModel);
+
+      if Event <> nil then
+         Glue.PostEvent(Event);
 
       Window.ShowModal;
 
    finally
       DataMananger.ReleaseData;
-      ViewModel.Free;
-      Window.Free;
+
+      if not Glue.HasDependencyResolver then
+      begin
+         ViewModel.Free;
+         Window.Free;
+      end;
    end;
 
 end;

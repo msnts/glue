@@ -13,7 +13,6 @@ type
       procedure OnAddClick(Sender : TObject);
       procedure OnEditClick(Sender : TObject);
       procedure OnDeleteClick(Sender : TObject);
-
    end;
 
 implementation
@@ -34,7 +33,7 @@ end;
 
 procedure TRecordManagerViewModel.OnEditClick(Sender: TObject);
 begin
-
+   TExecutions.ShowWindow('URecordView.TForm1');
 end;
 
 initialization
