@@ -61,6 +61,6 @@ implementation
 
 initialization
 
-TGlue.RegisterType(TForm1);
+TGlue.RegisterType(TForm1, 'FrmDetails');
 
 end.

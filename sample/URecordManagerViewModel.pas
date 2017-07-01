@@ -22,7 +22,7 @@ implementation
 procedure TRecordManagerViewModel.OnAddClick(Sender: TObject);
 begin
 
-   TExecutions.ShowWindow('URecordView.TForm1');
+   TExecutions.ShowWindow('FrmDetails');
 
 end;
 
@@ -33,7 +33,7 @@ end;
 
 procedure TRecordManagerViewModel.OnEditClick(Sender: TObject);
 begin
-   TExecutions.ShowWindow('URecordView.TForm1');
+   TExecutions.ShowWindow('FrmDetails');
 end;
 
 initialization

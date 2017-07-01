@@ -33,6 +33,8 @@ type
 
    EInvalidDataBindingException = class(Exception);
 
+   EInvalidTypeRegister = class(Exception);
+
 
 implementation
 

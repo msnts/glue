@@ -31,6 +31,6 @@ implementation
 
 initialization
 
-TGlue.RegisterType(TRecordManagerView);
+TGlue.RegisterType(TRecordManagerView, 'FrmManager');
 
 end.

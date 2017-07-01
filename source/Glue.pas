@@ -55,7 +55,7 @@ type
       procedure PostEvent(Event : TObject);
       function HasDependencyResolver() : Boolean;
       class procedure RegisterType(ClassType : TClass); overload;
-      class procedure RegisterType(QualifiedName : String; ClassType : TClass); overload;
+      class procedure RegisterType(ClassType : TClass; const Alias : String); overload;
    end;
 
 implementation
@@ -109,14 +109,40 @@ begin
 
 end;
 
-class procedure TGlue.RegisterType(QualifiedName: String; ClassType: TClass);
-begin
-   FInstance.FTypes.Add(QualifiedName, ClassType);
-end;
-
 class procedure TGlue.RegisterType(ClassType : TClass);
 begin
-   RegisterType(ClassType.QualifiedClassName, ClassType);
+   RegisterType(ClassType, 'default');
+end;
+
+class procedure TGlue.RegisterType(ClassType: TClass; const Alias: String);
+var
+   QualifiedClassName : String;
+   LocalAlias : String;
+begin
+
+   QualifiedClassName := ClassType.QualifiedClassName;
+
+   if not FInstance.FTypes.ContainsKey(QualifiedClassName) then
+      FInstance.FTypes.Add(QualifiedClassName, ClassType);
+
+   LocalAlias := Alias.Trim;
+
+   if LocalAlias.Equals('default') then
+      Exit;
+
+   if LocalAlias.IsEmpty then
+      raise EInvalidTypeRegister.Create('Invalid Type Register: Alias null or Empty');
+
+   if FInstance.FTypes.ContainsKey(LocalAlias) then
+   begin
+      if not QualifiedClassName.Equals(FInstance.FTypes.Items[LocalAlias].QualifiedClassName) then
+         raise EInvalidTypeRegister.Create('Invalid Type Register: Alias ' + LocalAlias.QuotedString + ' already linked to another type');
+
+      Exit;
+   end;
+
+   FInstance.FTypes.Add(LocalAlias, ClassType);
+
 end;
 
 class procedure TGlue.ReleaseInstance;
@@ -127,12 +153,12 @@ end;
 
 function TGlue.Resolve(const QualifiedClassName: String): TObject;
 var
-   ClsType : TClass;
-   c: TRttiContext;
-  t: TRttiType;
-  v: TValue;
-  Method : TRttiMethod;
-  Parameters : TArray<TRttiParameter>;
+   ClsType: TClass;
+   Context: TRttiContext;
+   RttiType: TRttiType;
+   Value: TValue;
+   Method: TRttiMethod;
+   Parameters: TArray<TRttiParameter>;
 begin
 
    ClsType := GetRegisteredType(QualifiedClassName);
@@ -142,27 +168,24 @@ begin
    else
    begin
 
-      c:= TRttiContext.Create;
+      Context := TRttiContext.Create;
 
       try
 
-         t:= c.GetType(ClsType);
+         RttiType := Context.GetType(ClsType);
 
-         Method := t.GetMethod('Create');
+         Method := RttiType.GetMethod('Create');
 
-         Parameters := Method.GetParameters;
-
-         if Length(Parameters) = 1 then
-            v:= Method.Invoke(t.AsInstance.MetaclassType,[nil])
+         if ClsType.InheritsFrom(TForm) then
+            Value := Method.Invoke(RttiType.AsInstance.MetaclassType, [Application])
          else
-            v:= Method.Invoke(t.AsInstance.MetaclassType,[]);
+            Value := Method.Invoke(RttiType.AsInstance.MetaclassType, []);
 
-         Result := v.AsObject;
+         Result := Value.AsObject;
 
       finally
-         c.Free;
+         Context.Free;
       end;
-
 
    end;
 
