@@ -22,9 +22,11 @@ interface
 uses
    System.RegularExpressions,
    Glue.Binding.BindingContext,
-   Glue.Enum;
+   Glue.Exceptions;
 
 type
+
+   TModeBinding = (mbSaveLoad, mbSave, mbLoad);
 
    TBindBaseAttribute = class(TCustomAttribute)
    private
@@ -69,18 +71,18 @@ type
 
    ViewModelAttribute = class(TCustomAttribute)
    private
-      FQualifiedClassName : String;
+      FQualifier : String;
    public
-      constructor Create(const QualifiedClassName : String);
-      property QualifiedClassName : String read FQualifiedClassName;
+      constructor Create(const Qualifier : String);
+      property Qualifier : String read FQualifier;
    end;
 
    ConverterAttribute = class(TCustomAttribute)
    private
-      FClassName : String;
+      FQualifier : String;
    public
-      constructor Create(ClassName : String);
-      property ClassName : String read FClassName;
+      constructor Create(const Qualifier : String);
+      property Qualifier : String read FQualifier;
    end;
 
 implementation
@@ -88,13 +90,13 @@ uses System.SysUtils;
 
 { ViewModelAttribute }
 
-constructor ViewModelAttribute.Create(const QualifiedClassName: String);
+constructor ViewModelAttribute.Create(const Qualifier: String);
 begin
 
-   if QualifiedClassName.Trim.IsEmpty then
-      raise Exception.Create('Class Name required');
+   if Qualifier.Trim.IsEmpty then
+      raise EInvalidQualifierException.Create('Qualifier required');
 
-   FQualifiedClassName := QualifiedClassName;
+   FQualifier := Qualifier.Trim;
 end;
 
 { TBindBaseAttribute }
@@ -141,9 +143,9 @@ end;
 
 { ConverterAttribute }
 
-constructor ConverterAttribute.Create(ClassName: String);
+constructor ConverterAttribute.Create(const Qualifier : String);
 begin
-   FClassName := ClassName;
+   FQualifier := Qualifier;
 end;
 
 { LoadAttribute }

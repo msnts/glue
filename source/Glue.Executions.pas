@@ -48,11 +48,11 @@ end;
 class procedure TExecutions.ShowWindow(const QualifiedClassName: String;
   Event: TObject);
 var
-   Window : TForm;
-   DataMananger : IDataManager;
-   ViewModel : TObject;
-   Attribute : ViewModelAttribute;
-   Glue : TGlue;
+   Window: TForm;
+   DataMananger: IDataManager;
+   ViewModel: TObject;
+   Attribute: ViewModelAttribute;
+   Glue: TGlue;
 begin
 
    Glue := TGlue.GetInstance;
@@ -63,7 +63,7 @@ begin
 
       Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(Window.ClassType);
 
-      ViewModel := Glue.Resolve(Attribute.QualifiedClassName);
+      ViewModel := Glue.Resolve(Attribute.Qualifier);
 
       DataMananger := TDataManager.Create(Window, ViewModel);
 
@@ -77,8 +77,13 @@ begin
 
       if not Glue.HasDependencyResolver then
       begin
-         ViewModel.Free;
-         Window.Free;
+
+         if Assigned(Window) then
+            Window.Free;
+
+         if Assigned(ViewModel) then
+            ViewModel.Free;
+
       end;
    end;
 

@@ -33,8 +33,9 @@ type
 
    EInvalidDataBindingException = class(Exception);
 
-   EInvalidTypeRegister = class(Exception);
+   EInvalidTypeRegisterException = class(Exception);
 
+   EInvalidQualifierException = class(Exception);
 
 implementation
 

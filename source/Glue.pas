@@ -23,8 +23,6 @@ uses
    System.Rtti, System.TypInfo, Vcl.Forms, System.Classes,
    Generics.Collections,
    Glue.Attributes,
-   Glue.NotifyPropertyChanging,
-   Glue.BindableBase,
    Glue.DataManager,
    Glue.AttributeUtils;
 
@@ -90,7 +88,7 @@ function TGlue.GetRegisteredType(const QualifiedClassName: String): TClass;
 begin
 
    if not FTypes.ContainsKey(QualifiedClassName) then
-      raise Exception.Create('Type register not found');
+      raise EInvalidTypeRegisterException.Create('Type register not found');
 
    Result := FTypes.Items[QualifiedClassName];
 
@@ -131,12 +129,12 @@ begin
       Exit;
 
    if LocalAlias.IsEmpty then
-      raise EInvalidTypeRegister.Create('Invalid Type Register: Alias null or Empty');
+      raise EInvalidTypeRegisterException.Create('Invalid Type Register: Alias null or Empty');
 
    if FInstance.FTypes.ContainsKey(LocalAlias) then
    begin
       if not QualifiedClassName.Equals(FInstance.FTypes.Items[LocalAlias].QualifiedClassName) then
-         raise EInvalidTypeRegister.Create('Invalid Type Register: Alias ' + LocalAlias.QuotedString + ' already linked to another type');
+         raise EInvalidTypeRegisterException.Create('Invalid Type Register: Alias ' + LocalAlias.QuotedString + ' already linked to another type');
 
       Exit;
    end;
@@ -158,7 +156,6 @@ var
    RttiType: TRttiType;
    Value: TValue;
    Method: TRttiMethod;
-   Parameters: TArray<TRttiParameter>;
 begin
 
    ClsType := GetRegisteredType(QualifiedClassName);

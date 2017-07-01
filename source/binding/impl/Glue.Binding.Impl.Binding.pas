@@ -7,13 +7,11 @@ uses
    Vcl.StdCtrls,
    System.SysUtils,
    Rtti,
+   Glue.Attributes,
    Glue.Binding,
    Generics.Collections,
-   Glue.NotifyPropertyChanging,
    Glue.Binding.BindingContext,
-   Glue.BindableBase,
    Glue.Converter,
-   Glue.Enum,
    Glue.Converter.Impl.GenericConverter,
    Glue.Exceptions;
 

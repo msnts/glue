@@ -8,7 +8,6 @@ uses
    System.TypInfo,
    System.ObjAuto,
    Glue.Binding.Command,
-   Glue.NotifyPropertyChanging,
    Glue.ActionListener,
    Glue.Exceptions;
 

@@ -22,7 +22,7 @@ type
    end;
 
 implementation
-uses System.SysUtils, Glue.Exceptions;
+uses System.SysUtils, System.SysConst, Glue.Exceptions;
 
 
 { TGenericConverter }
@@ -64,8 +64,6 @@ begin
 end;
 
 function TGenericConverter.ValueFromEnumeration(Value: TValue): TValue;
-var
-   Name : String;
 begin
 
    if not FPropertyTypeVM.Name.Equals(FPropertyTypeUI.Name) then

@@ -80,9 +80,7 @@
         <DCCReference Include="..\source\binding\impl\Glue.Binding.Impl.Binding.pas"/>
         <DCCReference Include="..\source\binding\Glue.Binding.BindingContext.pas"/>
         <DCCReference Include="..\source\Glue.Attributes.pas"/>
-        <DCCReference Include="..\source\Glue.BindableBase.pas"/>
         <DCCReference Include="..\source\Glue.DataManager.pas"/>
-        <DCCReference Include="..\source\Glue.NotifyPropertyChanging.pas"/>
         <DCCReference Include="..\source\Glue.Observer.pas"/>
         <DCCReference Include="..\source\Glue.pas"/>
         <DCCReference Include="URecordView.pas">
@@ -507,13 +505,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
