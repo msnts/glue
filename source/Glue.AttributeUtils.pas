@@ -52,7 +52,7 @@ begin
          if Attribute is T then
          begin
             Result := Attribute as T;
-            Exit(Result);
+            Exit;
          end;
 
       end;

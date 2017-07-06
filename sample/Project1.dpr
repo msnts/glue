@@ -12,7 +12,6 @@ uses
   Glue in '..\source\Glue.pas',
   URecordView in 'URecordView.pas' {Form1},
   URecordViewModel in 'URecordViewModel.pas',
-  Glue.Enum in '..\source\Glue.Enum.pas',
   Glue.ActionListener in '..\source\Glue.ActionListener.pas',
   Glue.Binding.Command in '..\source\binding\Glue.Binding.Command.pas',
   Glue.Converter.Impl.GenericConverter in '..\source\converter\impl\Glue.Converter.Impl.GenericConverter.pas',

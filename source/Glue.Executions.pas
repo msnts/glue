@@ -32,6 +32,7 @@ type
 
    TExecutions = class
    public
+      class procedure Start(const ClassType : TComponentClass);
       class procedure ShowWindow(const QualifiedClassName: String); overload;
       class procedure ShowWindow(const QualifiedClassName: String; Event : TObject); overload;
    end;
@@ -80,6 +81,47 @@ begin
 
          if Assigned(Window) then
             Window.Free;
+
+         if Assigned(ViewModel) then
+            ViewModel.Free;
+
+      end;
+   end;
+
+end;
+
+class procedure TExecutions.Start(const ClassType : TComponentClass);
+var
+   View : TForm;
+   ViewModel : TObject;
+   DataMananger : IDataManager;
+   Attribute : ViewModelAttribute;
+   Glue: TGlue;
+begin
+
+   Glue := TGlue.GetInstance;
+
+   Application.CreateForm(ClassType, View);
+
+   try
+
+      Attribute := TAttributeUtils.GetAttribute<ViewModelAttribute>(ClassType);
+
+      ViewModel := TGlue.GetInstance.Resolve(Attribute.Qualifier);
+
+      DataMananger := TDataManager.Create(View, ViewModel);
+
+      Application.Run;
+
+   finally
+
+      if Assigned(DataMananger) then
+         DataMananger.ReleaseData;
+
+      View.Free;
+
+      if not Glue.HasDependencyResolver then
+      begin
 
          if Assigned(ViewModel) then
             ViewModel.Free;
