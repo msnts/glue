@@ -163,7 +163,7 @@ object Form1: TForm1
     Top = 136
     Width = 225
     Height = 160
-    Date = 42896.833064432870000000
+    Date = 42896.806899166670000000
     TabOrder = 12
   end
   object Memo1: TMemo

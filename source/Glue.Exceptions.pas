@@ -37,6 +37,8 @@ type
 
    EInvalidQualifierException = class(Exception);
 
+   EInvalidDataTemplateException = class(Exception);
+
 implementation
 
 end.

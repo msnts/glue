@@ -23,6 +23,7 @@ uses
    Rtti,
    System.Classes,
    Generics.Collections,
+   Glue.View.Vcl,
    Glue.Observer,
    Glue.ActionListener,
    Glue.Attributes,
@@ -52,6 +53,7 @@ type
       procedure DataBinding();
       procedure AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
       procedure AddCommand(Field: TRttiField; Attr: CommandAttribute);
+      procedure AddTemplate(Field: TRttiField; Attr: TemplateAttribute);
       function GetConverter(Field: TRttiField) : IConverter;
       procedure OnAfter(Instance: TObject; Method: TRttiMethod; const Args: TArray<TValue>; var Result: TValue);
    public
@@ -91,6 +93,20 @@ begin
    Command := TCommand.Create(FView.FindComponent(Field.Name), FViewModel, Attr.TriggerName, Attr.HandlerName);
 
    FCommands.Add(Attr.HandlerName, Command);
+
+end;
+
+procedure TDataManager.AddTemplate(Field: TRttiField; Attr: TemplateAttribute);
+var
+   Component : TComponent;
+begin
+
+   Component := FView.FindComponent(Field.Name);
+
+   if Component is TComboBox then
+      TComboBox(Component).Template := Attr.Expression
+   else
+      raise Exception.Create('Unsupported template exception');
 
 end;
 
@@ -144,6 +160,12 @@ begin
          if Attr is CommandAttribute then
          begin
             AddCommand(Field, CommandAttribute(Attr));
+            continue;
+         end;
+
+         if Attr is TemplateAttribute then
+         begin
+            AddTemplate(Field, TemplateAttribute(Attr));
             continue;
          end;
 

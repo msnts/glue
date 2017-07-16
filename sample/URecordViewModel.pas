@@ -2,11 +2,25 @@ unit URecordViewModel;
 
 interface
 uses
+   System.Generics.Collections,
    Glue,
    Glue.Attributes,
-   System.Classes;
+   System.Classes,
+   Glue.ViewModel.ListModel,
+   Glue.ViewModel.ListModelList,
+   Glue.ViewModel.Impl.ListModelList;
 
 type
+
+   TItem = class
+   private
+      FId : Integer;
+      FText : String;
+   public
+      constructor Create(const AId : Integer; const AText : String);
+      property Id : Integer read FId;
+      property Text : String read FText;
+   end;
 
    TRecordViewModel = class
    private
@@ -18,6 +32,8 @@ type
       FLabelCheck1 : String;
       FTestDate : TDate;
       FLogs : TStringList;
+      FListObject : IListModelList<TItem>;
+      FSelectedItem : TItem;
    public
       constructor Create; virtual;
       destructor Destroy; override;
@@ -49,6 +65,14 @@ type
       [NotifyChange('Logs')]
       procedure SetTestDate(Date : TDate); virtual;
 
+      function GetItems : IListModel;
+      procedure SetItems(const Items : IListModel);
+
+      function GetSelectedItem() : TItem;
+
+      [NotifyChange('Logs')]
+      procedure SetSelectedItem(const Item : TItem);
+
       property LabelNome : String read GetLabelNome write SetLabelNome;
       property PrimeiroNome : String read GetPrimeiroNome write SetPrimeiroNome;
       property SegundoNome : String Read GetSegundoNome write SetSegundoNome;
@@ -60,6 +84,8 @@ type
       property MsgNumChar : String read GetMsgNumChar;
       property TestDate : TDate read GetTestDate write SetTestDate;
       property Logs : TStringList read FLogs;
+      property Items : IListModel read GetItems write SetItems;
+      property SelectedItem : TItem read GetSelectedItem write SetSelectedItem;
    end;
 
 
@@ -73,17 +99,30 @@ begin
    FLogs := TStringList.Create;
    FLogs.Add('Start Logs');
    FLabelNome := 'Label Nome Default';
+
+   FListObject := TListModelList<TItem>.Create(TList<TItem>.Create());
+   FListObject.Add(TItem.Create(1, 'Um'));
+   FListObject.Add(TItem.Create(2, 'Dois'));
+   FListObject.Add(TItem.Create(3, 'Três'));
+
+   FSelectedItem := FListObject.Get(0);
 end;
 
 destructor TRecordViewModel.Destroy;
 begin
   FLogs.Free;
+  FListObject.GetInnerList.Free;
   inherited;
 end;
 
 function TRecordViewModel.GetEnableEdit1: Boolean;
 begin
    Result := True;
+end;
+
+function TRecordViewModel.GetItems: IListModel;
+begin
+   Result := FListObject;
 end;
 
 function TRecordViewModel.GetLabelNome: String;
@@ -116,6 +155,11 @@ begin
    Result := FSegundoNome;
 end;
 
+function TRecordViewModel.GetSelectedItem: TItem;
+begin
+   Result := FSelectedItem;
+end;
+
 function TRecordViewModel.GetSoma: Double;
 begin
    Result := FNumero1 + FNumero2;
@@ -141,6 +185,11 @@ begin
    else
       FLabelCheck1 := 'Enable Off';
 
+end;
+
+procedure TRecordViewModel.SetItems(const Items: IListModel);
+begin
+   FListObject := Items as IListModelList<TItem>;
 end;
 
 procedure TRecordViewModel.SetLabelNome(Texto: String);
@@ -169,6 +218,13 @@ begin
    FSegundoNome := Nome;
 end;
 
+procedure TRecordViewModel.SetSelectedItem(const Item: TItem);
+begin
+   FSelectedItem := Item;
+
+//   FLogs.Add('SelectedItem: ' + Item.Text);
+end;
+
 procedure TRecordViewModel.SetTestDate(Date: TDate);
 begin
 
@@ -176,6 +232,14 @@ begin
 
    FLogs.Add('TestDate: ' + FormatDateTime('dd/mm/yyyy', Date));
 
+end;
+
+{ TItem }
+
+constructor TItem.Create(const AId: Integer; const AText: String);
+begin
+   FId := AId;
+   FText := AText;
 end;
 
 initialization

@@ -7,13 +7,15 @@ uses
    Vcl.StdCtrls,
    System.SysUtils,
    Rtti,
+   TypInfo,
    Glue.Attributes,
    Glue.Binding,
    Generics.Collections,
    Glue.Binding.BindingContext,
    Glue.Converter,
    Glue.Converter.Impl.GenericConverter,
-   Glue.Exceptions;
+   Glue.Exceptions,
+   Glue.ViewModel.ListModel;
 
 type
 
@@ -117,13 +119,16 @@ end;
 
 procedure TBinding.LoadData;
 var
-   Value: TValue;
+   Value, PropertyValue: TValue;
+   InterfaceValue : IInterface;
 begin
 
    if FMode = mbSave then
       Exit;
 
-   Value := FConverter.coerceToUI(FPropertyVM.GetValue(FViewModel as TObject), FComponent);
+   PropertyValue := FPropertyVM.GetValue(FViewModel as TObject);
+
+   Value := FConverter.coerceToUI(PropertyValue, FComponent);
 
    FPropertyUI.SetValue(FComponent, Value);
 

@@ -85,6 +85,14 @@ type
       property Qualifier : String read FQualifier;
    end;
 
+   TemplateAttribute = class(TCustomAttribute)
+   private
+      FExpression : string;
+   public
+      constructor Create(const AExpression : string);
+      property Expression : string read FExpression;
+   end;
+
 implementation
 uses System.SysUtils;
 
@@ -183,6 +191,13 @@ end;
 constructor NotifyChange.Create(const PropertyName: String);
 begin
    FPropertiesNames := PropertyName.Replace(' ', '').Split([',']);
+end;
+
+{ TemplateAttribute }
+
+constructor TemplateAttribute.Create(const AExpression: string);
+begin
+   FExpression := AExpression;
 end;
 
 end.

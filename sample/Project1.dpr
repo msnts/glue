@@ -20,7 +20,13 @@ uses
   Glue.AttributeUtils in '..\source\Glue.AttributeUtils.pas',
   Glue.Executions in '..\source\Glue.Executions.pas',
   URecordManagerView in 'URecordManagerView.pas' {RecordManagerView},
-  URecordManagerViewModel in 'URecordManagerViewModel.pas';
+  URecordManagerViewModel in 'URecordManagerViewModel.pas',
+  Glue.View.DataTemplate in '..\source\view\Glue.View.DataTemplate.pas',
+  Glue.View.Vcl in '..\source\view\Glue.View.Vcl.pas',
+  Glue.ViewModel.ListDataListener in '..\source\viewmodel\Glue.ViewModel.ListDataListener.pas',
+  Glue.ViewModel.ListModel in '..\source\viewmodel\Glue.ViewModel.ListModel.pas',
+  Glue.ViewModel.ListModelList in '..\source\viewmodel\Glue.ViewModel.ListModelList.pas',
+  Glue.ViewModel.Impl.ListModelList in '..\source\viewmodel\impl\Glue.ViewModel.Impl.ListModelList.pas';
 
 {$R *.res}
 

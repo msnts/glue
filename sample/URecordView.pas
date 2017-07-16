@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Glue, Glue.Attributes, Vcl.ComCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Glue, Glue.Attributes, Vcl.ComCtrls,
+  Glue.View.Vcl;
 
 type
 
@@ -31,7 +32,12 @@ type
    // [Save('target=Checked; source=EnableCheck1')]
    // [Load('target=Caption; source=LabelCheck1')]
     CheckBox1: TCheckBox;
+
+    [Bind('target=Data; source=Items')]
+    [Bind('target=SelectedItem; source=SelectedItem')]
+    [Template('Format("%d", {Item}.Id) + " " + {Item}.Text')]
     ComboBox1: TComboBox;
+
     ListBox1: TListBox;
     RadioButton1: TRadioButton;
    // [Load('target=Caption; source=MsgNumChar')]
