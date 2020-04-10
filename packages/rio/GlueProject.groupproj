@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{E4653676-BC4B-4C5C-9023-16A24B5072E7}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="GlueFramework.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="GlueSample.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="GlueTests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="GlueFramework">
+        <MSBuild Projects="GlueFramework.dproj"/>
+    </Target>
+    <Target Name="GlueFramework:Clean">
+        <MSBuild Projects="GlueFramework.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GlueFramework:Make">
+        <MSBuild Projects="GlueFramework.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GlueSample">
+        <MSBuild Projects="GlueSample.dproj"/>
+    </Target>
+    <Target Name="GlueSample:Clean">
+        <MSBuild Projects="GlueSample.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GlueSample:Make">
+        <MSBuild Projects="GlueSample.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="GlueTests">
+        <MSBuild Projects="GlueTests.dproj"/>
+    </Target>
+    <Target Name="GlueTests:Clean">
+        <MSBuild Projects="GlueTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="GlueTests:Make">
+        <MSBuild Projects="GlueTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="GlueFramework;GlueSample;GlueTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="GlueFramework:Clean;GlueSample:Clean;GlueTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="GlueFramework:Make;GlueSample:Make;GlueTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

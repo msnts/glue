@@ -1,0 +1,57 @@
+package GlueFramework;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl;
+
+contains
+  Glue.ActionListener in '..\..\src\Glue.ActionListener.pas',
+  Glue.Attributes in '..\..\src\Glue.Attributes.pas',
+  Glue.AttributeUtils in '..\..\src\Glue.AttributeUtils.pas',
+  Glue.DataManager in '..\..\src\Glue.DataManager.pas',
+  Glue.Exceptions in '..\..\src\Glue.Exceptions.pas',
+  Glue.Executions in '..\..\src\Glue.Executions.pas',
+  Glue.Observer in '..\..\src\Glue.Observer.pas',
+  Glue in '..\..\src\Glue.pas',
+  Glue.ViewModel.ListDataListener in '..\..\src\viewmodel\Glue.ViewModel.ListDataListener.pas',
+  Glue.ViewModel.ListModel in '..\..\src\viewmodel\Glue.ViewModel.ListModel.pas',
+  Glue.ViewModel.ListModelList in '..\..\src\viewmodel\Glue.ViewModel.ListModelList.pas',
+  Glue.ViewModel.Impl.ListModelList in '..\..\src\viewmodel\impl\Glue.ViewModel.Impl.ListModelList.pas',
+  Glue.View.DataTemplate in '..\..\src\view\Glue.View.DataTemplate.pas',
+  Glue.View.Vcl in '..\..\src\view\Glue.View.Vcl.pas',
+  Glue.Converter.GenericConverter in '..\..\src\converter\Glue.Converter.GenericConverter.pas',
+  Glue.Converter in '..\..\src\converter\Glue.Converter.pas',
+  Glue.Converter.Impl.GenericConverter in '..\..\src\converter\impl\Glue.Converter.Impl.GenericConverter.pas',
+  Glue.Binding.BindingContext in '..\..\src\binding\Glue.Binding.BindingContext.pas',
+  Glue.Binding.Command in '..\..\src\binding\Glue.Binding.Command.pas',
+  Glue.Binding in '..\..\src\binding\Glue.Binding.pas',
+  Glue.Binding.Impl.Binding in '..\..\src\binding\impl\Glue.Binding.Impl.Binding.pas',
+  Glue.Binding.Impl.Command in '..\..\src\binding\impl\Glue.Binding.Impl.Command.pas';
+
+end.
