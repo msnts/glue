@@ -19,8 +19,8 @@ type
       function ValueFromInterface(Value : TValue) : TValue;
    public
       procedure SetPropertiesType(PropertyTypeUI, PropertyTypeVM : TRttiType);
-      function coerceToUI(Value : TValue; Component : TComponent) : TValue;
-      function coerceToVM(Value : TValue; Component : TComponent) : TValue;
+      function CoerceToUI(Value : TValue; ATarget : TObject) : TValue;
+      function CoerceToVM(Value : TValue; ATarget : TObject) : TValue;
    end;
 
    TVirtualData = class(TVirtualInterface)
@@ -39,8 +39,8 @@ uses System.SysUtils, System.SysConst, Glue.Exceptions;
 
 { TGenericConverter }
 
-function TGenericConverter.coerceToUI(Value: TValue;
-  Component: TComponent): TValue;
+function TGenericConverter.CoerceToUI(Value : TValue; ATarget : TObject):
+    TValue;
 begin
 
    case FPropertyTypeUI.TypeKind of
@@ -56,8 +56,8 @@ begin
 
 end;
 
-function TGenericConverter.coerceToVM(Value: TValue;
-  Component: TComponent): TValue;
+function TGenericConverter.CoerceToVM(Value : TValue; ATarget : TObject):
+    TValue;
 begin
 
    case FPropertyTypeVM.TypeKind of
@@ -88,8 +88,7 @@ end;
 
 function TGenericConverter.ValueFromInterface(Value: TValue): TValue;
 var
-   propertyType: PTypeInfo;
-   data : IInterface;
+  propertyType: PTypeInfo;
 begin
 
    propertyType := FPropertyTypeUI.Handle;

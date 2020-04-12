@@ -204,7 +204,7 @@ begin
    if not Assigned(Attribute) then
       raise Exception.Create('View Model Not Found');
 
-   ViewModel := Resolve('URecordManagerViewModel.TRecordManagerViewModel');
+   ViewModel := Resolve(Attribute.Qualifier);
 
    try
 

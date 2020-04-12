@@ -20,184 +20,156 @@ unit Glue.Attributes;
 
 interface
 uses
-   System.RegularExpressions,
-   Glue.Binding.BindingContext,
-   Glue.Exceptions;
+  System.SysUtils,
+  System.RegularExpressions,
+  Glue.Binding.BindingContext,
+  Glue.Exceptions;
 
 type
 
-   TModeBinding = (mbSaveLoad, mbSave, mbLoad);
+  TBindingMode = (mbSaveLoad, mbSave, mbLoad);
 
-   TBindBaseAttribute = class(TCustomAttribute)
-   private
-      FBindContext : TBindContext;
-      FMode : TModeBinding;
-   public
-      constructor Create(Expression : String); virtual;
-      property BindContext : TBindContext read FBindContext;
-      property Mode : TModeBinding read FMode;
-   end;
+  TGlueAttribute = class(TCustomAttribute);
 
-   BindAttribute = class(TBindBaseAttribute);
+  TBindBaseAttribute = class(TGlueAttribute)
+  private
+    FBindingMode : TBindingMode;
+    FSourcePropertyName: string;
+    FTargetPropertyName: string;
+  public
+    constructor Create(const ATargetPropertyName, ASourcePropertyName : string); virtual;
+    property BindingMode: TBindingMode read FBindingMode;
+    property SourcePropertyName: string read FSourcePropertyName;
+    property TargetPropertyName: string read FTargetPropertyName;
+  end;
 
-   LoadAttribute = class(TBindBaseAttribute)
-   public
-      constructor Create(Expression : String); override;
-   end;
+  BindAttribute = class(TBindBaseAttribute);
 
-   SaveAttribute = class(TBindBaseAttribute)
-   public
-      constructor Create(Expression : String); override;
-   end;
+  LoadAttribute = class(TBindBaseAttribute)
+  public
+    constructor Create(const ATargetPropertyName, ASourcePropertyName : string); override;
+  end;
 
-   CommandAttribute = class(TCustomAttribute)
-   private
-      FTriggerName : String;
-      FHandlerName : String;
-   public
-      constructor Create(const HandlerName : String); overload;
-      constructor Create(const TriggerName, HandlerName : String); overload;
-      property TriggerName : String read FTriggerName;
-      property HandlerName : String read FHandlerName;
-   end;
+  SaveAttribute = class(TBindBaseAttribute)
+  public
+    constructor Create(const ATargetPropertyName, ASourcePropertyName : string); override;
+  end;
 
-   NotifyChange = class(TCustomAttribute)
-   private
-      FPropertiesNames : TArray<string>;
-   public
-      constructor Create(const PropertyName : String); overload;
-      property PropertiesNames : TArray<string> read FPropertiesNames;
-   end;
+  CommandAttribute = class(TGlueAttribute)
+  private
+    FTriggerName : string;
+    FHandlerName : string;
+  public
+    constructor Create(const HandlerName : string); overload;
+    constructor Create(const TriggerName, HandlerName : string); overload;
+    property TriggerName : string read FTriggerName;
+    property HandlerName : string read FHandlerName;
+  end;
 
-   ViewModelAttribute = class(TCustomAttribute)
-   private
-      FQualifier : String;
-   public
-      constructor Create(const Qualifier : String);
-      property Qualifier : String read FQualifier;
-   end;
+  NotifyChangeAttribute = class(TGlueAttribute)
+  private
+    FPropertiesNames : TArray<string>;
+  public
+    constructor Create(const PropertyName : string); overload;
+    property PropertiesNames : TArray<string> read FPropertiesNames;
+  end;
 
-   ConverterAttribute = class(TCustomAttribute)
-   private
-      FQualifier : String;
-   public
-      constructor Create(const Qualifier : String);
-      property Qualifier : String read FQualifier;
-   end;
+  InitAttribute = class(TGlueAttribute);
 
-   TemplateAttribute = class(TCustomAttribute)
-   private
-      FExpression : string;
-   public
-      constructor Create(const AExpression : string);
-      property Expression : string read FExpression;
-   end;
+  ViewModelAttribute = class(TGlueAttribute)
+  private
+    FQualifier : string;
+  public
+    constructor Create(const Qualifier : string);
+    property Qualifier : string read FQualifier;
+  end;
+
+  ConverterAttribute = class(TGlueAttribute)
+  private
+    FQualifier : string;
+  public
+    constructor Create(const Qualifier : string);
+    property Qualifier : string read FQualifier;
+  end;
+
+  TemplateAttribute = class(TGlueAttribute)
+  private
+    FExpression : string;
+  public
+    constructor Create(const AExpression : string);
+    property Expression : string read FExpression;
+  end;
 
 implementation
-uses System.SysUtils;
 
 { ViewModelAttribute }
 
-constructor ViewModelAttribute.Create(const Qualifier: String);
+constructor ViewModelAttribute.Create(const Qualifier: string);
 begin
+  if Qualifier.Trim.IsEmpty then
+    raise EInvalidQualifierException.Create('Qualifier required');
 
-   if Qualifier.Trim.IsEmpty then
-      raise EInvalidQualifierException.Create('Qualifier required');
-
-   FQualifier := Qualifier.Trim;
+  FQualifier := Qualifier.Trim;
 end;
 
 { TBindBaseAttribute }
 
-constructor TBindBaseAttribute.Create(Expression: String);
-var
-   RegularExpression: TRegEx;
-   Match: TMatch;
+constructor TBindBaseAttribute.Create(const ATargetPropertyName, ASourcePropertyName : string);
 begin
-
-   FMode := mbSaveLoad;
-
-   RegularExpression.Create
-     ('(\btarget=(\w+))|(\bsource=(\w+))|(\bif=(.[^;]+);?)|(\bbefore=([\w\.,]+))|(\bafter=([\w\.,]+))|(\bconverter=([\w\.]+))');
-   Match := RegularExpression.Match(Expression);
-
-   if Match.Success then
-   begin
-      FBindContext.AttributeUI := Match.Groups.Item[2].Value;
-
-      Match := Match.NextMatch;
-
-      if Match.Success then
-         FBindContext.AttributeVM := Match.Groups.Item[4].Value;
-
-      Match := Match.NextMatch;
-
-      if Match.Success then
-         FBindContext.Condition := Match.Groups.Item[6].Value;
-
-      Match := Match.NextMatch;
-
-      if Match.Success then
-         FBindContext.Condition := Match.Groups.Item[8].Value;
-
-      Match := Match.NextMatch;
-
-      if Match.Success then
-         FBindContext.After := Match.Groups.Item[10].Value;
-
-   end;
-
+  FBindingMode := mbSaveLoad;
+  FTargetPropertyName := ATargetPropertyName;
+  FSourcePropertyName := ASourcePropertyName;
 end;
 
 { ConverterAttribute }
 
-constructor ConverterAttribute.Create(const Qualifier : String);
+constructor ConverterAttribute.Create(const Qualifier : string);
 begin
-   FQualifier := Qualifier;
+  FQualifier := Qualifier;
 end;
 
 { LoadAttribute }
 
-constructor LoadAttribute.Create(Expression: String);
+constructor LoadAttribute.Create(const ATargetPropertyName, ASourcePropertyName : string);
 begin
   inherited;
-  FMode := mbLoad;
+  FBindingMode := mbLoad;
 end;
 
 { SaveAttribute }
 
-constructor SaveAttribute.Create(Expression: String);
+constructor SaveAttribute.Create(const ATargetPropertyName, ASourcePropertyName : string);
 begin
   inherited;
-  FMode := mbSave;
+  FBindingMode := mbSave;
 end;
 
 { CommandAttribute }
 
-constructor CommandAttribute.Create(const HandlerName: String);
+constructor CommandAttribute.Create(const HandlerName: string);
 begin
-   FTriggerName := 'OnClick';
-   FHandlerName := HandlerName;
+  FTriggerName := 'OnClick';
+  FHandlerName := HandlerName;
 end;
 
-constructor CommandAttribute.Create(const TriggerName, HandlerName: String);
+constructor CommandAttribute.Create(const TriggerName, HandlerName: string);
 begin
-   FTriggerName := TriggerName;
-   FHandlerName := HandlerName;
+  FTriggerName := TriggerName;
+  FHandlerName := HandlerName;
 end;
 
 { NotifyChange }
 
-constructor NotifyChange.Create(const PropertyName: String);
+constructor NotifyChangeAttribute.Create(const PropertyName: string);
 begin
-   FPropertiesNames := PropertyName.Replace(' ', '').Split([',']);
+  FPropertiesNames := PropertyName.Replace(' ', '').Split([',']);
 end;
 
 { TemplateAttribute }
 
 constructor TemplateAttribute.Create(const AExpression: string);
 begin
-   FExpression := AExpression;
+  FExpression := AExpression;
 end;
 
 end.

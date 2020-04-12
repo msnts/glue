@@ -10,7 +10,8 @@ uses
   {$ENDIF }
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
-  DUnitX.TestFramework;
+  DUnitX.TestFramework,
+  Glue.Binding.BindingTests in '..\..\tests\Glue.Binding.BindingTests.pas';
 
 var
   runner : ITestRunner;

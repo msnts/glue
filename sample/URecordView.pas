@@ -9,49 +9,32 @@ uses
 
 type
 
-  [ViewModel('URecordViewModel.TRecordViewModel')]
-  TForm1 = class(TForm)
-    [Load('target=Caption; source=LabelNome')]
-    lbl1: TLabel;
-  //  [Bind('target=Text; source=PrimeiroNome')]
-    edtNome: TEdit;
-   // [Bind('target=Text; source=SegundoNome')]
-    edtNome2: TEdit;
-    [Command('OnClick')]
+  [ViewModel('RecordViewModel')]
+  TRecordView = class(TForm)
+    [Load('Caption', 'FullName')]
+    lbFirstName: TLabel;
+    [Bind('edtFistName.Text', 'FistName')]
+    edtFistName: TEdit;
+    [Bind('edtLastName.Text', 'LastName')]
+    edtLastName: TEdit;
+    //[Command('btn1.OnClick', 'OnClick')]
     btn1: TButton;
-   // [Bind('target=Text; source=Numero1')]
     Edit1: TEdit;
-   // [Bind('target=Text; source=Numero2')]
-    Edit2: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-   // [Load('target=Text; source=ResultadoSoma')]
-    Edit3: TEdit;
-
-   // [Save('target=Checked; source=EnableCheck1')]
-   // [Load('target=Caption; source=LabelCheck1')]
     CheckBox1: TCheckBox;
-
-    [Bind('target=Data; source=Items')]
-    [Bind('target=SelectedItem; source=SelectedItem')]
-    [Template('Format("%d", {Item}.Id) + " " + {Item}.Text')]
-    ComboBox1: TComboBox;
-
+    cmbGender: TComboBox;
     ListBox1: TListBox;
     RadioButton1: TRadioButton;
-   // [Load('target=Caption; source=MsgNumChar')]
-    Label4: TLabel;
     grp1: TGroupBox;
     RadioButton2: TRadioButton;
-    DateTimePicker1: TDateTimePicker;
-
-    [Bind('target=Date; source=TestDate')]
-    MonthCalendar1: TMonthCalendar;
+    dtpDate: TDateTimePicker;
     RadioButton3: TRadioButton;
-
-    [Load('target=Lines; source=Logs')]
     Memo1: TMemo;
+    lbLastName: TLabel;
+    lbGender: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    //[Load('StatusBar1.Panels.Items[1].Text', 'FullName')]
+    StatusBar1: TStatusBar;
   private
     { Private declarations }
   public
@@ -59,7 +42,7 @@ type
   end;
 
 var
-  Form1: TForm1;
+  RecordView: TRecordView;
 
 implementation
 
@@ -67,6 +50,6 @@ implementation
 
 initialization
 
-TGlue.RegisterType(TForm1, 'FrmDetails');
+TGlue.RegisterType(TRecordView, 'FrmDetails');
 
 end.

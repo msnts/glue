@@ -24,9 +24,9 @@ type
 
    TRecordViewModel = class
    private
-      FLabelNome : String;
-      FPrimeiroNome : String;
-      FSegundoNome : String;
+      FFullName: String;
+      FFistName: String;
+      FLastName: String;
       FNumero1 : Integer;
       FNumero2 : Double;
       FLabelCheck1 : String;
@@ -37,14 +37,14 @@ type
    public
       constructor Create; virtual;
       destructor Destroy; override;
-      function GetLabelNome() : String;
-      procedure SetLabelNome(Texto : String); virtual;
-      function GetPrimeiroNome() : String;
+      function GetFullName: string;
+      function GetFistName: string;
 
-      [NotifyChange('SegundoNome, MsgNumChar')]
-      procedure SetPrimeiroNome(Nome : String); virtual;
-      function GetSegundoNome() : String;
-      procedure SetSegundoNome(Nome : String); virtual;
+      [NotifyChange('FullName, MsgNumChar')]
+      procedure SetFistName(const AValue: string); virtual;
+      function GetLastName: String;
+      [NotifyChange('FullName, MsgNumChar')]
+      procedure SetLastName(const AValue: string); virtual;
       function GetNumero1() : Integer;
       procedure SetNumero1(Num : Integer); virtual;
       function GetNumero2() : Double;
@@ -59,7 +59,7 @@ type
       function GetMsgNumChar() : String;
       function GetTestDate() : TDate;
 
-      [NotifyChange('PrimeiroNome')]
+      [NotifyChange('FistName')]
       procedure OnClick(Sender : TObject; V : Integer);
 
       [NotifyChange('Logs')]
@@ -73,9 +73,9 @@ type
       [NotifyChange('Logs')]
       procedure SetSelectedItem(const Item : TItem);
 
-      property LabelNome : String read GetLabelNome write SetLabelNome;
-      property PrimeiroNome : String read GetPrimeiroNome write SetPrimeiroNome;
-      property SegundoNome : String Read GetSegundoNome write SetSegundoNome;
+      property FullName: String read GetFullName;
+      property FistName: String read GetFistName write SetFistName;
+      property LastName: String read GetLastName write SetLastName;
       property Numero1 : Integer read GetNumero1 write SetNumero1;
       property Numero2 : Double read GetNumero2 write SetNumero2;
       property ResultadoSoma : Double read GetSoma;
@@ -98,7 +98,7 @@ constructor TRecordViewModel.Create;
 begin
    FLogs := TStringList.Create;
    FLogs.Add('Start Logs');
-   FLabelNome := 'Label Nome Default';
+   FFullName := 'Label Nome Default';
 
    FListObject := TListModelList<TItem>.Create(TList<TItem>.Create());
    FListObject.Add(TItem.Create(1, 'Um'));
@@ -125,14 +125,14 @@ begin
    Result := FListObject;
 end;
 
-function TRecordViewModel.GetLabelNome: String;
+function TRecordViewModel.GetFullName: string;
 begin
-   Result := FLabelNome;
+   Result := FFistName + ' ' + FLastName;
 end;
 
 function TRecordViewModel.GetMsgNumChar: String;
 begin
-   Result := 'Count: ' + String.parse(FPrimeiroNome.Length);
+   Result := 'Count: ' + String.parse(FFistName.Length);
 end;
 
 function TRecordViewModel.GetNumero1: Integer;
@@ -145,14 +145,14 @@ begin
    Result := FNumero2;
 end;
 
-function TRecordViewModel.GetPrimeiroNome: String;
+function TRecordViewModel.GetFistName: string;
 begin
-   Result := FPrimeiroNome;
+   Result := FFistName;
 end;
 
-function TRecordViewModel.GetSegundoNome: String;
+function TRecordViewModel.GetLastName: String;
 begin
-   Result := FSegundoNome;
+   Result := FLastName;
 end;
 
 function TRecordViewModel.GetSelectedItem: TItem;
@@ -173,7 +173,7 @@ end;
 procedure TRecordViewModel.OnClick(Sender : TObject; V : Integer);
 begin
 
-   FPrimeiroNome := 'Onclick ' + Sender.ClassName;
+   FFistName := 'Onclick ' + Sender.ClassName;
 
 end;
 
@@ -192,11 +192,6 @@ begin
    FListObject := Items as IListModelList<TItem>;
 end;
 
-procedure TRecordViewModel.SetLabelNome(Texto: String);
-begin
-
-end;
-
 procedure TRecordViewModel.SetNumero1(Num: Integer);
 begin
    FNumero1 := Num;
@@ -207,15 +202,14 @@ begin
    FNumero2 := Num;
 end;
 
-procedure TRecordViewModel.SetPrimeiroNome(Nome: String);
+procedure TRecordViewModel.SetFistName(const AValue: string);
 begin
-   FPrimeiroNome := Nome;
-   FSegundoNome := Nome;
+   FFistName := AValue;
 end;
 
-procedure TRecordViewModel.SetSegundoNome(Nome: String);
+procedure TRecordViewModel.SetLastName(const AValue: string);
 begin
-   FSegundoNome := Nome;
+   FLastName := AValue;
 end;
 
 procedure TRecordViewModel.SetSelectedItem(const Item: TItem);
@@ -243,6 +237,6 @@ begin
 end;
 
 initialization
-TGlue.RegisterType(TRecordViewModel);
+TGlue.RegisterType(TRecordViewModel, 'RecordViewModel');
 
 end.

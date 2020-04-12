@@ -1,7 +1,7 @@
-object Form1: TForm1
+object RecordView: TRecordView
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'RecordView'
   ClientHeight = 627
   ClientWidth = 979
   Color = clBtnFace
@@ -13,125 +13,109 @@ object Form1: TForm1
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object lbl1: TLabel
-    Left = 24
-    Top = 32
-    Width = 31
+  object lbFirstName: TLabel
+    Left = 16
+    Top = 29
+    Width = 51
     Height = 13
-    Caption = 'Nome:'
+    Caption = 'Fist Name:'
   end
-  object Label1: TLabel
-    Left = 8
-    Top = 216
-    Width = 82
+  object lbLastName: TLabel
+    Left = 16
+    Top = 56
+    Width = 54
     Height = 13
-    Caption = 'Primeiro N'#250'mero:'
+    Caption = 'Last Name:'
   end
-  object Label2: TLabel
-    Left = 8
-    Top = 251
-    Width = 86
+  object lbGender: TLabel
+    Left = 16
+    Top = 83
+    Width = 39
     Height = 13
-    Caption = 'Segundo N'#250'mero:'
-  end
-  object Label3: TLabel
-    Left = 8
-    Top = 283
-    Width = 81
-    Height = 13
-    Caption = 'Resultado Soma:'
+    Caption = 'Gender:'
   end
   object Label4: TLabel
-    Left = 188
-    Top = 32
-    Width = 31
+    Left = 16
+    Top = 112
+    Width = 39
     Height = 13
-    Caption = 'Label4'
+    Caption = 'Gender:'
   end
-  object edtNome: TEdit
-    Left = 61
-    Top = 29
-    Width = 121
+  object Label5: TLabel
+    Left = 16
+    Top = 137
+    Width = 29
+    Height = 13
+    Caption = 'Stars:'
+  end
+  object edtFistName: TEdit
+    Left = 76
+    Top = 26
+    Width = 200
     Height = 21
     TabOrder = 0
-    Text = 'edtNome'
   end
-  object edtNome2: TEdit
-    Left = 61
-    Top = 64
-    Width = 121
+  object edtLastName: TEdit
+    Left = 76
+    Top = 53
+    Width = 200
     Height = 21
     TabOrder = 1
-    Text = 'edtNome2'
   end
   object btn1: TButton
-    Left = 678
-    Top = 331
+    Left = 430
+    Top = 248
     Width = 91
     Height = 25
     Caption = 'Reset Fields'
     TabOrder = 2
   end
   object Edit1: TEdit
-    Left = 96
-    Top = 213
+    Left = 76
+    Top = 134
     Width = 121
     Height = 21
     TabOrder = 3
   end
-  object Edit2: TEdit
-    Left = 96
-    Top = 248
-    Width = 121
-    Height = 21
-    TabOrder = 4
-  end
-  object Edit3: TEdit
-    Left = 95
-    Top = 275
-    Width = 121
-    Height = 21
-    TabOrder = 5
-  end
   object CheckBox1: TCheckBox
-    Left = 8
-    Top = 354
+    Left = 79
+    Top = 170
     Width = 97
     Height = 17
     Caption = 'CheckBox1'
-    TabOrder = 6
+    TabOrder = 4
   end
-  object ComboBox1: TComboBox
-    Left = 408
-    Top = 29
-    Width = 145
+  object cmbGender: TComboBox
+    Left = 76
+    Top = 80
+    Width = 100
     Height = 21
-    TabOrder = 7
-    Text = 'ComboBox1'
+    Style = csDropDownList
+    TabOrder = 5
   end
   object ListBox1: TListBox
-    Left = 408
-    Top = 64
+    Left = 320
+    Top = 26
     Width = 145
     Height = 113
     ItemHeight = 13
-    TabOrder = 8
+    TabOrder = 6
   end
   object RadioButton1: TRadioButton
-    Left = 408
-    Top = 215
+    Left = 336
+    Top = 193
     Width = 113
     Height = 17
     Caption = 'RadioButton1'
-    TabOrder = 9
+    TabOrder = 7
   end
   object grp1: TGroupBox
-    Left = 400
-    Top = 251
-    Width = 185
+    Left = 8
+    Top = 193
+    Width = 268
     Height = 105
-    Caption = 'grp1'
-    TabOrder = 10
+    Caption = 'Option:'
+    TabOrder = 8
     object RadioButton2: TRadioButton
       Left = 24
       Top = 32
@@ -149,30 +133,39 @@ object Form1: TForm1
       TabOrder = 1
     end
   end
-  object DateTimePicker1: TDateTimePicker
-    Left = 656
-    Top = 88
+  object dtpDate: TDateTimePicker
+    Left = 76
+    Top = 107
     Width = 186
     Height = 21
-    Date = 42896.690115127320000000
-    Time = 42896.690115127320000000
-    TabOrder = 11
-  end
-  object MonthCalendar1: TMonthCalendar
-    Left = 656
-    Top = 136
-    Width = 225
-    Height = 160
-    Date = 42896.806899166670000000
-    TabOrder = 12
+    Date = 42896.000000000000000000
+    Time = 0.690115127319586500
+    TabOrder = 9
   end
   object Memo1: TMemo
     Left = 8
-    Top = 424
+    Top = 304
     Width = 963
     Height = 195
     Lines.Strings = (
       'Memo1')
-    TabOrder = 13
+    TabOrder = 10
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 608
+    Width = 979
+    Height = 19
+    Panels = <
+      item
+        Text = 'Status:'
+        Width = 50
+      end
+      item
+        Width = 50
+      end>
+    ExplicitLeft = 384
+    ExplicitTop = 560
+    ExplicitWidth = 0
   end
 end

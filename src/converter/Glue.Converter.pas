@@ -8,8 +8,8 @@ uses
 type
    IConverter = interface
       ['{B2ACCF79-1872-4D60-9182-A1C1C9EDB98A}']
-      function coerceToUI(Value : TValue; Component : TComponent) : TValue;
-      function coerceToVM(Value : TValue; Component : TComponent) : TValue;
+      function CoerceToUI(Value : TValue; ATarget : TObject) : TValue;
+      function CoerceToVM(Value : TValue; ATarget : TObject) : TValue;
    end;
 
 implementation

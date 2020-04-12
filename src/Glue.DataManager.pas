@@ -79,9 +79,10 @@ begin
 
    Converter := GetConverter(Field);
 
-   Binding := TBinding.Create(Attr.Mode, FView.FindComponent(Field.Name), FViewModel, Converter, Attr.BindContext);
+   Binding := TBinding.Create(FViewModel, Attr.SourcePropertyName,
+   FView, Attr.TargetPropertyName, Attr.BindingMode, Converter);
 
-   FBinders.Add(Attr.BindContext.AttributeVM, Binding);
+   FBinders.Add(Attr.SourcePropertyName, Binding);
 
 end;
 
@@ -216,10 +217,10 @@ end;
 procedure TDataManager.OnAfter(Instance: TObject; Method: TRttiMethod;
   const Args: TArray<TValue>; var Result: TValue);
 var
-   Attribute : NotifyChange;
+   Attribute : NotifyChangeAttribute;
 begin
 
-   Attribute := TAttributeUtils.GetAttribute<NotifyChange>(Method);
+   Attribute := TAttributeUtils.GetAttribute<NotifyChangeAttribute>(Method);
 
    if Assigned(Attribute) then
       Update(Attribute.PropertiesNames);
@@ -265,7 +266,7 @@ begin
    begin
 
       for Binder in FBinders.Values.ToArray do
-         Binder.LoadData;
+         Binder.UpdateTarget;
 
       Exit;
    end;
@@ -275,7 +276,7 @@ begin
 
    Binder := FBinders.Items[PropertyName];
 
-   Binder.LoadData;
+   Binder.UpdateTarget;
 
 end;
 

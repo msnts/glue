@@ -8,6 +8,7 @@ uses
    System.SysUtils,
    Rtti,
    TypInfo,
+   Glue.Rtti,
    Glue.Attributes,
    Glue.Binding,
    Generics.Collections,
@@ -18,52 +19,93 @@ uses
    Glue.ViewModel.ListModel;
 
 type
+  TMemberProperty = record
+  public
+    Instance: TObject;
+    Prop: TRttiProperty;
+    PropertyType: TRttiType;
+    ObjectType: TRttiType;
 
-   TBinding = class(TInterfacedObject, IBinding)
-   protected
-      FComponent: TComponent;
-      FViewModel: TObject;
-      FMode: TModeBinding;
-      FBindContext: TBindContext;
-      FRTTIContext: TRttiContext;
-      FPropertyVM: TRttiProperty;
-      FPropertyUI: TRttiProperty;
-      FComponentType: TRttiType;
-      FViewModelType: TRttiType;
-      FConverter : IConverter;
-   protected
-      procedure OnChange(Sender: TObject);
-      procedure ProcessBinding();
-   public
-      constructor Create(Mode: TModeBinding; Component: TComponent; ViewModel: TObject; Converter : IConverter; Context: TBindContext);
-      procedure LoadData();
-      procedure SaveData();
-   end;
+    procedure SetValue(AValue: TValue);
+    function GetValue(): TValue;
+  end;
+
+  TBinding = class(TInterfacedObject, IBinding)
+  protected
+    FSource: TObject;
+    FTarget: TObject;
+    FBindingMode: TBindingMode;
+    FRTTIContext: TRttiContext;
+    FSourceProperty: TMemberProperty;
+    FTargetProperty: TMemberProperty;
+    FSourcePropertyName: string;
+    FTargetPropertyName: string;
+    FConverter : IConverter;
+  protected
+    procedure OnChange(Sender: TObject);
+    procedure SetSource(ASource: TObject);
+    procedure SetTarget(ATarget: TObject);
+    procedure SetConverter(AConverter: IConverter);
+    procedure SetSourceProperty();
+    procedure SetTargetProperty();
+    function GetRttiProperty(AInstance: TObject; const APropertyName: string): TMemberProperty;
+  public
+    constructor Create(ASource: TObject; ASourcePropertyName: string; ATarget: TObject;
+      ATargetPropertyName: string; ABindingMode: TBindingMode; AConverter: IConverter);
+    procedure UpdateTarget();
+    procedure UpdateSource();
+  end;
 
 implementation
 
 { TBinding }
 
-constructor TBinding.Create(Mode: TModeBinding; Component: TComponent; ViewModel: TObject; Converter : IConverter; Context: TBindContext);
+constructor TBinding.Create(ASource: TObject; ASourcePropertyName: string;
+  ATarget: TObject; ATargetPropertyName: string; ABindingMode: TBindingMode;
+  AConverter: IConverter);
 begin
+  FSourcePropertyName := ASourcePropertyName;
+  FTargetPropertyName := ATargetPropertyName;
+  FBindingMode := ABindingMode;
 
-   FMode := Mode;
+  SetSource(ASource);
+  SetTarget(ATarget);
+  SetConverter(AConverter);
 
-   FComponent := Component;
+  FRTTIContext := TRttiContext.Create;
+end;
 
-   FViewModel := ViewModel;
+function TBinding.GetRttiProperty(AInstance: TObject; const APropertyName: string): TMemberProperty;
+var
+  properties: TArray<string>;
+  PropName: string;
+  Prop: TRttiMember;
+  I, count: Integer;
+  Resp: TMemberProperty;
+begin
+  properties := APropertyName.Split(['.']);
+  count := Length(properties) - 1;
 
-   FBindContext := Context;
+  Resp.ObjectType := FRTTIContext.GetType(AInstance.ClassType);
 
-   FRTTIContext := TRttiContext.Create;
+  Resp.Instance := AInstance;
 
-   ProcessBinding;
+  for I := 0 to count do
+  begin
+    PropName := properties[I];
+    Prop := Resp.ObjectType.GetMember(PropName);
+    Resp.PropertyType := Prop.GetMemberType;
 
-   FConverter := Converter;
+    if I < count then
+    begin
+      Resp.Instance := Prop.GetValue(Resp.Instance).AsObject;
+      Resp.ObjectType := Prop.GetMemberType;
+    end;
+  end;
 
-   if FConverter is TGenericConverter then
-      TGenericConverter(FConverter).SetPropertiesType(FPropertyUI.PropertyType, FPropertyVM.PropertyType);
+  Resp.Prop := TRttiProperty(Prop);
 
+  Result := Resp;
 end;
 
 procedure TBinding.OnChange(Sender: TObject);
@@ -71,67 +113,97 @@ var
    Value: TValue;
 begin
 
-   Value := FConverter.coerceToVM(FPropertyUI.GetValue(TEdit(FComponent)), FComponent);
+   Value := FConverter.coerceToVM(FTargetProperty.GetValue, FTargetProperty.Instance);
 
-   FPropertyVM.SetValue(FViewModel as TObject, Value);
+   FSourceProperty.SetValue(Value);
 
 end;
 
-procedure TBinding.ProcessBinding;
-var
-   objType: TRttiType;
-   Prop: TRttiProperty;
+procedure TBinding.UpdateSource;
 begin
 
-   objType := FRTTIContext.GetType(TObject(FViewModel).ClassType);
+end;
 
-   FPropertyVM := objType.GetProperty(FBindContext.AttributeVM);
+procedure TBinding.SetConverter(AConverter: IConverter);
+begin
+  FConverter := AConverter;
+  if FConverter is TGenericConverter then
+    TGenericConverter(FConverter).SetPropertiesType(FTargetProperty.Prop.PropertyType, FSourceProperty.Prop.PropertyType);
+end;
 
-   if (FMode <> mbLoad) and not FPropertyVM.IsWritable then
-      raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FBindContext.AttributeVM + '" Property of the ViewModel is read-only');
+procedure TBinding.SetSource(ASource: TObject);
+begin
+  FSource := ASource;
 
-   objType := FRTTIContext.GetType(FComponent.ClassType);
+  FSourceProperty := GetRttiProperty(FSource, FSourcePropertyName);
 
-   FPropertyUI := objType.GetProperty(FBindContext.AttributeUI);
+  if (FBindingMode <> mbLoad) and not FSourceProperty.Prop.IsWritable then
+    raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FSourcePropertyName + '" Property of the ViewModel is read-only');
+end;
 
-   if (FMode = mbLoad) and not FPropertyUI.IsWritable then
-      raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FBindContext.AttributeUI + '" Property of the View is read-only');
+procedure TBinding.SetSourceProperty;
+begin
 
-   if FMode = mbLoad then
+end;
+
+procedure TBinding.SetTarget(ATarget: TObject);
+var
+  objType: TRttiType;
+  Prop: TRttiProperty;
+begin
+  FTarget := ATarget;
+
+  FTargetProperty := GetRttiProperty(FTarget, FTargetPropertyName);
+
+  if (FBindingMode = mbLoad) and not FTargetProperty.Prop.IsWritable then
+    raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FTargetPropertyName + '" Property of the View is read-only');
+
+   if FBindingMode = mbLoad then
       Exit;
 
-   Prop := objType.GetProperty('OnChange');
+   Prop := FTargetProperty.ObjectType.GetProperty('OnChange');
 
    if Prop = nil then
-      Prop := objType.GetProperty('OnClick');
+      Prop := FTargetProperty.ObjectType.GetProperty('OnClick');
 
    if Prop = nil then
       raise Exception.Create('Property OnChange not found');
 
-   Prop.SetValue(FComponent, TValue.From<TNotifyEvent>(OnChange));
-
+   Prop.SetValue(FTargetProperty.Instance, TValue.From<TNotifyEvent>(OnChange));
 end;
 
-procedure TBinding.SaveData;
+procedure TBinding.SetTargetProperty;
 begin
 
 end;
 
-procedure TBinding.LoadData;
+procedure TBinding.UpdateTarget;
 var
    Value, PropertyValue: TValue;
    InterfaceValue : IInterface;
 begin
 
-   if FMode = mbSave then
+   if FBindingMode = mbSave then
       Exit;
 
-   PropertyValue := FPropertyVM.GetValue(FViewModel as TObject);
+   PropertyValue := FSourceProperty.GetValue();
 
-   Value := FConverter.coerceToUI(PropertyValue, FComponent);
+   Value := FConverter.coerceToUI(PropertyValue, FTarget);
 
-   FPropertyUI.SetValue(FComponent, Value);
+   FTargetProperty.SetValue(Value);
 
+end;
+
+{ TMemberProperty }
+
+function TMemberProperty.GetValue: TValue;
+begin
+  Result := Self.Prop.GetValue(Self.Instance);
+end;
+
+procedure TMemberProperty.SetValue(AValue: TValue);
+begin
+  Self.Prop.SetValue(Self.Instance, AValue);
 end;
 
 end.

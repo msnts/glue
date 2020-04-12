@@ -91,7 +91,7 @@
         </DCCReference>
         <DCCReference Include="..\..\sample\URecordManagerViewModel.pas"/>
         <DCCReference Include="..\..\sample\URecordView.pas">
-            <Form>Form1</Form>
+            <Form>RecordView</Form>
         </DCCReference>
         <DCCReference Include="..\..\sample\URecordViewModel.pas"/>
         <BuildConfiguration Include="Release">
@@ -120,13 +120,13 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\GlueSample.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName="Win32\Debug\GlueSample.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\..\Build\GlueSample\Win32\Debug\GlueSample.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>GlueSample.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Win32\Debug\GlueSample.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>

@@ -52,6 +52,8 @@ contains
   Glue.Binding.Command in '..\..\src\binding\Glue.Binding.Command.pas',
   Glue.Binding in '..\..\src\binding\Glue.Binding.pas',
   Glue.Binding.Impl.Binding in '..\..\src\binding\impl\Glue.Binding.Impl.Binding.pas',
-  Glue.Binding.Impl.Command in '..\..\src\binding\impl\Glue.Binding.Impl.Command.pas';
+  Glue.Binding.Impl.Command in '..\..\src\binding\impl\Glue.Binding.Impl.Command.pas',
+  Glue.Rtti in '..\..\src\Glue.Rtti.pas';
 
 end.
+
