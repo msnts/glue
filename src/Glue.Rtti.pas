@@ -10,14 +10,26 @@ type
   end;
 
   TRttiMemberHelper = class helper for TRttiMember
+  private
+    function GetIsWritable: Boolean;
   public
     function GetMemberType(): TRttiType;
     function GetValue(Instance: Pointer): TValue;
+    procedure SetValue(AInstance: Pointer; AValue: TValue);
+    property IsWritable: Boolean read GetIsWritable;
   end;
 
 implementation
 
 { TRttiMemberHelper }
+
+function TRttiMemberHelper.GetIsWritable: Boolean;
+begin
+  if Self is TRttiField then
+    Exit(True);
+
+  Result := TRttiProperty(Self).IsWritable;
+end;
 
 function TRttiMemberHelper.GetMemberType: TRttiType;
 begin
@@ -33,6 +45,17 @@ begin
     Exit(TRttiField(Self).GetValue(Instance));
 
   Result := TRttiProperty(Self).GetValue(Instance);
+end;
+
+procedure TRttiMemberHelper.SetValue(AInstance: Pointer; AValue: TValue);
+begin
+  if Self is TRttiField then
+  begin
+    TRttiField(Self).SetValue(AInstance, AValue);
+    Exit;
+  end;
+
+  TRttiProperty(Self).SetValue(AInstance, AValue);
 end;
 
 { TRttiTypeHelper }

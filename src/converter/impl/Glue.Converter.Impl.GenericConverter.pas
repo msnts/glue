@@ -11,14 +11,14 @@ uses
 type
    TGenericConverter = class(TInterfacedObject, IConverter)
    private
-      FPropertyTypeUI : TRttiType;
-      FPropertyTypeVM : TRttiType;
+      FPropertyTypeUI : TTypeKind;
+      FPropertyTypeVM : TTypeKind;
    private
       function ValueToString(Value : TValue) : String;
       function ValueFromEnumeration(Value : TValue) : TValue;
       function ValueFromInterface(Value : TValue) : TValue;
    public
-      procedure SetPropertiesType(PropertyTypeUI, PropertyTypeVM : TRttiType);
+      procedure SetPropertiesType(PropertyTypeUI, PropertyTypeVM : TTypeKind);
       function CoerceToUI(Value : TValue; ATarget : TObject) : TValue;
       function CoerceToVM(Value : TValue; ATarget : TObject) : TValue;
    end;
@@ -43,7 +43,7 @@ function TGenericConverter.CoerceToUI(Value : TValue; ATarget : TObject):
     TValue;
 begin
 
-   case FPropertyTypeUI.TypeKind of
+   case FPropertyTypeUI of
       tkInteger, tkInt64 : Result := Integer.Parse(ValueToString(Value));
       tkFloat: Result := Double.Parse(ValueToString(Value));
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
@@ -60,7 +60,7 @@ function TGenericConverter.CoerceToVM(Value : TValue; ATarget : TObject):
     TValue;
 begin
 
-   case FPropertyTypeVM.TypeKind of
+   case FPropertyTypeVM of
       tkInteger, tkInt64 : Result := Integer.Parse(ValueToString(Value));
       tkFloat: Result := Double.Parse(ValueToString(Value));
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
@@ -69,8 +69,8 @@ begin
 
 end;
 
-procedure TGenericConverter.SetPropertiesType(PropertyTypeUI,
-  PropertyTypeVM: TRttiType);
+procedure TGenericConverter.SetPropertiesType(PropertyTypeUI, PropertyTypeVM :
+    TTypeKind);
 begin
    FPropertyTypeUI := PropertyTypeUI;
    FPropertyTypeVM := PropertyTypeVM;
@@ -79,8 +79,8 @@ end;
 function TGenericConverter.ValueFromEnumeration(Value: TValue): TValue;
 begin
 
-   if not FPropertyTypeVM.Name.Equals(FPropertyTypeUI.Name) then
-      raise EIncompatibleDataConversionException.Create('Incompatible Data Conversion');
+   //if not FPropertyTypeVM.Name.Equals(FPropertyTypeUI.Name) then
+   //   raise EIncompatibleDataConversionException.Create('Incompatible Data Conversion');
 
    Result := Value;
 
@@ -91,11 +91,11 @@ var
   propertyType: PTypeInfo;
 begin
 
-   propertyType := FPropertyTypeUI.Handle;
+   {propertyType := FPropertyTypeUI.Handle;
 
    if not Value.TryCast(propertyType, Result) then
       raise EIncompatibleDataConversionException.Create('Incompatible Data Conversion');
-
+   }
 end;
 
 function TGenericConverter.ValueToString(Value: TValue): String;

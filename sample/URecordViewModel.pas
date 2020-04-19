@@ -106,6 +106,7 @@ begin
    FListObject.Add(TItem.Create(3, 'Três'));
 
    FSelectedItem := FListObject.Get(0);
+   FFistName := 'abc';
 end;
 
 destructor TRecordViewModel.Destroy;

@@ -164,8 +164,5 @@ object RecordView: TRecordView
       item
         Width = 50
       end>
-    ExplicitLeft = 384
-    ExplicitTop = 560
-    ExplicitWidth = 0
   end
 end
