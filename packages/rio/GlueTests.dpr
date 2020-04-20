@@ -11,7 +11,8 @@ uses
   DUnitX.Loggers.Console,
   DUnitX.Loggers.Xml.NUnit,
   DUnitX.TestFramework,
-  Glue.Binding.BindingTests in '..\..\tests\Glue.Binding.BindingTests.pas';
+  Glue.Binding.BindingTests in '..\..\tests\Glue.Binding.BindingTests.pas',
+  Glue.Binding.PropertyAccessorTests in '..\..\tests\binding\Glue.Binding.PropertyAccessorTests.pas';
 
 var
   runner : ITestRunner;

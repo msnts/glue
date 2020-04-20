@@ -14,13 +14,15 @@ type
   private
     FIsRoot: Boolean;
     FInstance: Pointer;
+    FFullPropertyName: string;
     FPropertyName: string;
     FMemberProperty: TRttiMember;
+    FRootMemberProperty: TRttiMember;
     FObjectType: TRttiType;
     FChild: IPropertyAccessor;
     function ResolveInstance(AInstance: TObject): Pointer;
   public
-    constructor Create(AInstance: TObject; const APropertyName: string); overload;
+    constructor Create(AInstance: TObject; AObjectType: TRttiType; const APropertyName: string); overload;
     constructor Create(AObjectType: TRttiType; const APropertyNames: TArray<string>); overload;
     procedure SetValue(AValue: TValue);
     function GetValue(): TValue;
@@ -45,6 +47,7 @@ begin
   FObjectType := AObjectType;
   FPropertyName := APropertyNames[0];
   FMemberProperty := AObjectType.GetMember(FPropertyName);
+  FRootMemberProperty := FMemberProperty;
   Count := Length(APropertyNames);
 
   if Count = 2 then
@@ -59,63 +62,58 @@ begin
         ObjectType := FMemberProperty.GetMemberType;
         FChild := TPropertyAccessor.Create(ObjectType, Copy(APropertyNames, 1));
         FObjectType := FChild.GetObjectType();
-        FMemberProperty := FChild.GetMemberProperty();
       end;
     end;
 end;
 
-constructor TPropertyAccessor.Create(AInstance: TObject; const APropertyName: string);
+constructor TPropertyAccessor.Create(AInstance: TObject; AObjectType: TRttiType; const APropertyName: string);
 var
-  LRTTIContext: TRttiContext;
   ObjectType: TRttiType;
   properties: TArray<string>;
   Count: Integer;
 begin
   FIsRoot := True;
   FInstance := AInstance;
-  LRTTIContext := TRttiContext.Create;
-  try
-    FObjectType := LRTTIContext.GetType(AInstance.ClassType);
-    properties := APropertyName.Split(['.']);
-    Count := Length(properties);
+  FFullPropertyName := APropertyName;
 
-    FPropertyName := properties[0];
-    FMemberProperty := FObjectType.GetMember(FPropertyName);
+  FObjectType := AObjectType;
+  properties := APropertyName.Split(['.']);
+  Count := Length(properties);
 
-    if Count = 2 then
+  FPropertyName := properties[0];
+  FMemberProperty := FObjectType.GetMember(FPropertyName);
+  FRootMemberProperty := FMemberProperty;
+
+  if Count = 2 then
+  begin
+    FObjectType := FMemberProperty.GetMemberType();
+    FChild := TPropertyAccessor.Create(FObjectType, Copy(properties, 1));
+  end
+  else
+  begin
+    if Count > 2 then
     begin
-      FObjectType := FMemberProperty.GetMemberType();
-      FChild := TPropertyAccessor.Create(FObjectType, Copy(properties, 1));
-    end
-    else
-    begin
-      if Count > 2 then
-      begin
-        ObjectType := FMemberProperty.GetMemberType;
-        FChild := TPropertyAccessor.Create(ObjectType, Copy(properties, 1));
-        FObjectType := FChild.GetObjectType();
-        FMemberProperty := FChild.GetMemberProperty();
-      end;
+      ObjectType := FMemberProperty.GetMemberType;
+      FChild := TPropertyAccessor.Create(ObjectType, Copy(properties, 1));
+      FObjectType := FChild.GetObjectType();
     end;
-  finally
-    LRTTIContext.Free;
   end;
+
+  if FChild <> nil then
+    FMemberProperty := FChild.GetMemberProperty();
 end;
 
 function TPropertyAccessor.ResolveInstance(AInstance: TObject): Pointer;
 var
   Value: TValue;
-  teste: string;
 begin
-  if (FChild = nil) then
+  if FChild = nil then
     Exit(AInstance);
 
-  Value := FMemberProperty.GetValue(AInstance);
-
-  teste := FMemberProperty.Name;
-
-  if not FChild.HasChild then
-    Exit(Value.AsObject);
+  if FIsRoot then
+    Value := FRootMemberProperty.GetValue(AInstance)
+  else
+    Value := FMemberProperty.GetValue(AInstance);
 
   Result := TPropertyAccessor(FChild).ResolveInstance(Value.AsObject);
 end;
