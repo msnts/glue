@@ -49,6 +49,8 @@ type
       FBinders : TDictionary<String, IBinding>;
       FCommands : TDictionary<String, ICommand>;
       Fvmi: TVirtualMethodInterceptor;
+      FViewType: TRttiType;
+      FViewModelType: TRttiType;
    private
       procedure DataBinding();
       procedure AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
@@ -73,16 +75,16 @@ uses Glue, System.SysUtils;
 
 procedure TDataManager.AddBind(Field: TRttiField; Attr: TBindBaseAttribute);
 var
-   Binding : IBinding;
-   Converter : IConverter;
+  Binding : IBinding;
+  Converter : IConverter;
 begin
 
-   Converter := GetConverter(Field);
+  Converter := GetConverter(Field);
 
-   Binding := TBinding.Create(FViewModel, Attr.SourcePropertyName,
-   FView, Attr.TargetPropertyName, Attr.BindingMode, Converter);
+  Binding := TBinding.Create(FViewModelType, FViewModel, Attr.SourcePropertyName,
+    FViewType, FView, Attr.TargetPropertyName, Attr.BindingMode, Converter);
 
-   FBinders.Add(Attr.SourcePropertyName, Binding);
+  FBinders.Add(Attr.SourcePropertyName, Binding);
 
 end;
 
@@ -111,8 +113,7 @@ begin
 
 end;
 
-constructor TDataManager.Create(View: TComponent;
-  ViewModel: TObject);
+constructor TDataManager.Create(View: TComponent; ViewModel: TObject);
 begin
 
    FView := View;
@@ -138,15 +139,15 @@ end;
 procedure TDataManager.DataBinding;
 var
    ctx: TRttiContext;
-   objType: TRttiType;
    Field: TRttiField;
    Attr: TCustomAttribute;
 begin
 
    ctx := TRttiContext.Create;
-   objType := ctx.GetType(FView.ClassType);
+   FViewType := ctx.GetType(FView.ClassType);
+   FViewModelType := ctx.GetType(FViewModel.ClassType);
 
-   for Field in objType.GetFields do
+   for Field in FViewType.GetFields do
    begin
 
       for Attr in Field.GetAttributes do

@@ -1,3 +1,20 @@
+{ ******************************************************************************
+  Copyright 2020 Marcos Santos
+
+  Contact: marcos.santos@outlook.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  *****************************************************************************}
 unit Glue.Binding.Impl.Binding;
 
 interface
@@ -25,6 +42,8 @@ type
   protected
     FSource: TObject;
     FTarget: TObject;
+    FSourceType: TRttiType;
+    FTargetType: TRttiType;
     FBindingMode: TBindingMode;
     FRTTIContext: TRttiContext;
     FSourceProperty: IPropertyAccessor;
@@ -40,8 +59,10 @@ type
     procedure SetSourceProperty();
     procedure SetTargetProperty();
   public
-    constructor Create(ASource: TObject; ASourcePropertyName: string; ATarget: TObject;
-      ATargetPropertyName: string; ABindingMode: TBindingMode; AConverter: IConverter);
+    constructor Create(ASourceType: TRttiType; ASource: TObject;
+        ASourcePropertyName: string; ATargetType: TRttiType; ATarget: TObject;
+        ATargetPropertyName: string; ABindingMode: TBindingMode; AConverter:
+        IConverter);
     procedure UpdateTarget();
     procedure UpdateSource();
   end;
@@ -50,10 +71,12 @@ implementation
 
 { TBinding }
 
-constructor TBinding.Create(ASource: TObject; ASourcePropertyName: string;
-  ATarget: TObject; ATargetPropertyName: string; ABindingMode: TBindingMode;
+constructor TBinding.Create(ASourceType: TRttiType; ASource: TObject; ASourcePropertyName: string;
+  ATargetType: TRttiType; ATarget: TObject; ATargetPropertyName: string; ABindingMode: TBindingMode;
   AConverter: IConverter);
 begin
+  FSourceType := ASourceType;
+  FTargetType := ATargetType;
   FSourcePropertyName := ASourcePropertyName;
   FTargetPropertyName := ATargetPropertyName;
   FBindingMode := ABindingMode;
@@ -66,12 +89,8 @@ end;
 procedure TBinding.OnChange(Sender: TObject);
 var
   Value, PropertyValue: TValue;
-  InterfaceValue : IInterface;
-  vlr: string;
 begin
-  vlr := TEdit(Sender).Text;
   PropertyValue := FTargetProperty.GetValue();
-  vlr := PropertyValue.AsString;
 
   Value := FConverter.coerceToVM(PropertyValue, FTarget);
 
@@ -94,7 +113,7 @@ procedure TBinding.SetSource(ASource: TObject);
 begin
   FSource := ASource;
 
-  FSourceProperty := TPropertyAccessor.Create(FSource, FSourcePropertyName);
+  FSourceProperty := TPropertyAccessor.Create(FSource, FSourceType, FSourcePropertyName);
 
   if (FBindingMode <> mbLoad) and not FSourceProperty.IsWritable then
     raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FSourcePropertyName + '" Property of the ViewModel is read-only');
@@ -111,7 +130,7 @@ var
 begin
   FTarget := ATarget;
 
-  FTargetProperty := TPropertyAccessor.Create(FTarget, FTargetPropertyName);
+  FTargetProperty := TPropertyAccessor.Create(FTarget, FTargetType, FTargetPropertyName);
 
   if (FBindingMode = mbLoad) and not FTargetProperty.IsWritable then
     raise EInvalidDataBindingException.Create('Error Data Binding: The "' + FTargetPropertyName + '" Property of the View is read-only');
@@ -137,19 +156,16 @@ end;
 
 procedure TBinding.UpdateTarget;
 var
-   Value, PropertyValue: TValue;
-   InterfaceValue : IInterface;
+  Value, PropertyValue: TValue;
 begin
+  if FBindingMode = mbSave then
+    Exit;
 
-   if FBindingMode = mbSave then
-      Exit;
+  PropertyValue := FSourceProperty.GetValue();
 
-   PropertyValue := FSourceProperty.GetValue();
+  Value := FConverter.coerceToUI(PropertyValue, FTarget);
 
-   Value := FConverter.coerceToUI(PropertyValue, FTarget);
-
-   FTargetProperty.SetValue(Value);
-
+  FTargetProperty.SetValue(Value);
 end;
 
 end.

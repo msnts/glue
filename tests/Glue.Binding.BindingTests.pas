@@ -20,7 +20,7 @@ type
     property SourceValue: Integer read FSourceValue write FSourceValue;
     property TargetValue: Integer read FTargetValue write FTargetValue;
 
-    [Test]
+    //[Test]
     procedure SimpleLoanTest;
   end;
 
