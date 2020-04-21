@@ -22,10 +22,15 @@ uses
   System.Rtti,
   System.TypInfo,
   System.SysUtils,
+  System.RegularExpressions,
   Glue.Rtti,
   Glue.Binding.PropertyAccessor;
 
 type
+  TPropertyData = record
+    Identicator: string;
+    Index: Integer;
+  end;
 
   TPropertyAccessor = class(TInterfacedObject, IPropertyAccessor)
   private
@@ -37,7 +42,10 @@ type
     FRootMemberProperty: TRttiMember;
     FObjectType: TRttiType;
     FChild: IPropertyAccessor;
+    FIndex: Integer;
     function ResolveInstance(AInstance: TObject): Pointer;
+    procedure SetChild(const AProperties: TArray<string>);
+    function GetPropertyData(const APropertyName: string): TPropertyData;
   public
     constructor Create(AInstance: TObject; AObjectType: TRttiType; const APropertyName: string); overload;
     constructor Create(AObjectType: TRttiType; const APropertyNames: TArray<string>); overload;
@@ -57,64 +65,42 @@ implementation
 
 constructor TPropertyAccessor.Create(AObjectType: TRttiType; const APropertyNames: TArray<string>);
 var
-  ObjectType: TRttiType;
-  Count: Integer;
+  LPropertyData: TPropertyData;
 begin
   FIsRoot := False;
   FObjectType := AObjectType;
-  FPropertyName := APropertyNames[0];
+
+  LPropertyData := GetPropertyData(APropertyNames[0]);
+
+  FPropertyName := LPropertyData.Identicator;
+  FIndex := LPropertyData.Index;
+
   FMemberProperty := AObjectType.GetMember(FPropertyName);
   FRootMemberProperty := FMemberProperty;
-  Count := Length(APropertyNames);
 
-  if Count = 2 then
-    begin
-      FObjectType := FMemberProperty.GetMemberType();
-      FChild := TPropertyAccessor.Create(FObjectType, Copy(APropertyNames, 1));
-    end
-    else
-    begin
-      if Count > 2 then
-      begin
-        ObjectType := FMemberProperty.GetMemberType;
-        FChild := TPropertyAccessor.Create(ObjectType, Copy(APropertyNames, 1));
-        FObjectType := FChild.GetObjectType();
-      end;
-    end;
+  SetChild(APropertyNames);
 end;
 
 constructor TPropertyAccessor.Create(AInstance: TObject; AObjectType: TRttiType; const APropertyName: string);
 var
-  ObjectType: TRttiType;
-  properties: TArray<string>;
-  Count: Integer;
+  LProperties: TArray<string>;
+  LPropertyData: TPropertyData;
 begin
   FIsRoot := True;
   FInstance := AInstance;
   FFullPropertyName := APropertyName;
 
   FObjectType := AObjectType;
-  properties := APropertyName.Split(['.']);
-  Count := Length(properties);
+  LProperties := APropertyName.Split(['.']);
 
-  FPropertyName := properties[0];
+  LPropertyData := GetPropertyData(LProperties[0]);
+
+  FPropertyName := LPropertyData.Identicator;
+  FIndex := LPropertyData.Index;
   FMemberProperty := FObjectType.GetMember(FPropertyName);
   FRootMemberProperty := FMemberProperty;
 
-  if Count = 2 then
-  begin
-    FObjectType := FMemberProperty.GetMemberType();
-    FChild := TPropertyAccessor.Create(FObjectType, Copy(properties, 1));
-  end
-  else
-  begin
-    if Count > 2 then
-    begin
-      ObjectType := FMemberProperty.GetMemberType;
-      FChild := TPropertyAccessor.Create(ObjectType, Copy(properties, 1));
-      FObjectType := FChild.GetObjectType();
-    end;
-  end;
+  SetChild(LProperties);
 
   if FChild <> nil then
     FMemberProperty := FChild.GetMemberProperty();
@@ -128,9 +114,9 @@ begin
     Exit(AInstance);
 
   if FIsRoot then
-    Value := FRootMemberProperty.GetValue(AInstance)
+    Value := FRootMemberProperty.GetValue(AInstance, FIndex)
   else
-    Value := FMemberProperty.GetValue(AInstance);
+    Value := FMemberProperty.GetValue(AInstance, FIndex);
 
   Result := TPropertyAccessor(FChild).ResolveInstance(Value.AsObject);
 end;
@@ -161,15 +147,28 @@ begin
   Result := FChild.GetObjectType();
 end;
 
+function TPropertyAccessor.GetPropertyData(const APropertyName: string): TPropertyData;
+var
+  LMatch: TMatch;
+  LPropertyData: TPropertyData;
+begin
+  LMatch := TRegEx.Match(APropertyName, '^(\w*)\[?(\d*)\]?$',[roIgnoreCase]);
+
+  LPropertyData.Identicator := LMatch.Groups.Item[1].Value;
+  LPropertyData.Index := StrToIntDef(LMatch.Groups.Item[2].Value, -1);
+
+  Result := LPropertyData;
+end;
+
 function TPropertyAccessor.GetValue: TValue;
 var
   LInstance: Pointer;
 begin
   LInstance := ResolveInstance(FInstance);
   if FChild = nil then
-    Result :=  FMemberProperty.GetValue(LInstance)
+    Result :=  FMemberProperty.GetValue(LInstance, FIndex)
   else
-    Result := FChild.GetMemberProperty.GetValue(LInstance);
+    Result := FChild.GetMemberProperty.GetValue(LInstance, FIndex);
 end;
 
 function TPropertyAccessor.HasChild: Boolean;
@@ -184,15 +183,37 @@ begin
   Result := FChild.IsWritable;
 end;
 
+procedure TPropertyAccessor.SetChild(const AProperties: TArray<string>);
+var
+  ObjectType: TRttiType;
+  Count: Integer;
+begin
+  Count := Length(AProperties);
+  if Count = 2 then
+  begin
+    FObjectType := FMemberProperty.GetMemberType();
+    FChild := TPropertyAccessor.Create(FObjectType, Copy(AProperties, 1));
+  end
+  else
+  begin
+    if Count > 2 then
+    begin
+      ObjectType := FMemberProperty.GetMemberType;
+      FChild := TPropertyAccessor.Create(ObjectType, Copy(AProperties, 1));
+      FObjectType := FChild.GetObjectType();
+    end;
+  end;
+end;
+
 procedure TPropertyAccessor.SetValue(AValue: TValue);
 var
   LInstance: Pointer;
 begin
   LInstance := ResolveInstance(FInstance);
   if FChild = nil then
-    FMemberProperty.SetValue(LInstance, AValue)
+    FMemberProperty.SetValue(LInstance, FIndex, AValue)
   else
-    FChild.GetMemberProperty.SetValue(LInstance, AValue);
+    FChild.GetMemberProperty.SetValue(LInstance, FIndex, AValue);
 end;
 
 end.

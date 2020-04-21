@@ -49,9 +49,13 @@ type
     FUUID: string;
     FAddress: TAddress;
     FFirstName: string;
+    FLastName: string;
+    FPhones: TArray<string>;
   public
     property Address: TAddress read FAddress write FAddress;
     property FirstName: string read FFirstName write FFirstName;
+    property LastName: string read FLastName write FLastName;
+    property Phones: TArray<string> read FPhones write FPhones;
     property UUID: string read FUUID;
   end;
 
@@ -71,18 +75,21 @@ type
     [TestCase('Double', 'Address.Id,tkInteger')]
     [TestCase('Triple', 'Address.City.Name,tkUString')]
     [TestCase('Quadruple', 'Address.City.Country.GNP,tkFloat')]
+    [TestCase('Array', 'Phones[0],tkDynArray')]
     procedure GetMemberType_ShouldReturnPropertyKindCorrectly(const APropertyName: string; const AExpected: TTypeKind);
 
     [TestCase('Single', 'FirstName,Bob')]
     [TestCase('Double', 'Address.Id,123')]
     [TestCase('Triple', 'Address.City.Name,Rio')]
     [TestCase('Quadruple', 'Address.City.Country.Alias,BR')]
+    [TestCase('Array', 'Phones[0],123456789')]
     procedure GetValue_ShouldReturnPropertyValueCorrectly(const APropertyName: string; AExpectedName: variant);
 
     [TestCase('Single', 'FirstName,FirstName')]
     [TestCase('Double', 'Address.Id,Id')]
     [TestCase('Triple', 'Address.City.Name,Name')]
     [TestCase('Quadruple', 'Address.City.Country.Alias,Alias')]
+    [TestCase('Array', 'Phones[0],Phones')]
     procedure GetMemberProperty_ShouldReturnPropertyCorrectly(const APropertyName, AExpectedName: string);
 
     [TestCase('Single - True', 'FirstName,True')]
@@ -97,6 +104,7 @@ type
     [TestCase('Double', 'Address.Id,TAddress')]
     [TestCase('Triple', 'Address.City.Name,TCity')]
     [TestCase('Quadruple', 'Address.City.Country.Alias,TCountry')]
+    [TestCase('Array', 'Phones[0],TCustomer')]
     procedure GetObjectType_ShouldReturnValueCorrectly(const APropertyName, AExpectedName: string);
 
     [Test]
@@ -109,7 +117,16 @@ type
     procedure GetInstance_GivenAPropertyNameWithThreeLevel_ShouldReturnValueCorrectly();
 
     [Test]
-    procedure GetInstance_GivenAPropertyNameWithFourLevel_ShouldReturnValueCorrectly;
+    procedure GetInstance_GivenAPropertyNameWithFourLevel_ShouldReturnValueCorrectly();
+
+    [Test]
+    procedure SetValue_GivenAPropertyNameWithOneLevel_ShouldSetValueCorrectly();
+
+    [Test]
+    procedure SetValue_GivenAPropertyNameWithFourLeve_ShouldSetValueCorrectly();
+
+    [Test]
+    procedure SetValue_GivenAnIndexedPropertyName_ShouldSetValueCorrectly();
   end;
 
 implementation
@@ -211,6 +228,7 @@ begin
   FData.Address.FCity := TCity.Create;
 
   FData.FirstName := 'Bob';
+  FData.Phones := ['123456789', '987654321'];
   FData.Address.Id := 123;
   FData.Address.City.Name := 'Rio';
 
@@ -224,6 +242,39 @@ begin
   finally
     LRTTIContext.Free;
   end;
+end;
+
+procedure TPropertyAccessorTests.SetValue_GivenAnIndexedPropertyName_ShouldSetValueCorrectly;
+var
+  Accessor: IPropertyAccessor;
+begin
+  Accessor := TPropertyAccessor.Create(FData, FObjectType, 'Phones[1]');
+
+  Accessor.SetValue(TValue.From<string>('0123498765'));
+
+  Assert.AreEqual('0123498765', FData.Phones[1]);
+end;
+
+procedure TPropertyAccessorTests.SetValue_GivenAPropertyNameWithFourLeve_ShouldSetValueCorrectly;
+var
+  Accessor: IPropertyAccessor;
+begin
+  Accessor := TPropertyAccessor.Create(FData, FObjectType, 'Address.City.Country.GNP');
+
+  Accessor.SetValue(TValue.From<Double>(12.3));
+
+  Assert.AreEqual(Double(12.3), FData.Address.City.Country.GNP);
+end;
+
+procedure TPropertyAccessorTests.SetValue_GivenAPropertyNameWithOneLevel_ShouldSetValueCorrectly;
+var
+  Accessor: IPropertyAccessor;
+begin
+  Accessor := TPropertyAccessor.Create(FData, FObjectType, 'LastName');
+
+  Accessor.SetValue(TValue.From<string>('Marley'));
+
+  Assert.AreEqual('Marley', FData.LastName);
 end;
 
 procedure TPropertyAccessorTests.TearDownFixture;

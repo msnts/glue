@@ -33,7 +33,7 @@ var
 begin
   Converter := TGenericConverter.Create;
 
-  Binding := TBinding.Create(Self, 'SourceValue', Self, 'TargetValue', mbLoad, Converter);
+  //Binding := TBinding.Create(Self, 'SourceValue', Self, 'TargetValue', mbLoad, Converter);
 
   SourceValue := 123;
 
