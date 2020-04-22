@@ -17,7 +17,7 @@ type
     edtFistName: TEdit;
     [Bind('edtLastName.Text', 'LastName')]
     edtLastName: TEdit;
-    //[Command('btn1.OnClick', 'OnClick')]
+    [Command('btn1.OnClick', 'OnClick')]
     btn1: TButton;
     Edit1: TEdit;
     CheckBox1: TCheckBox;

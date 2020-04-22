@@ -60,7 +60,7 @@ type
       function GetTestDate() : TDate;
 
       [NotifyChange('FistName')]
-      procedure OnClick(Sender : TObject; V : Integer);
+      procedure OnClick();
 
       [NotifyChange('Logs')]
       procedure SetTestDate(Date : TDate); virtual;
@@ -171,10 +171,10 @@ begin
    Result := FTestDate;
 end;
 
-procedure TRecordViewModel.OnClick(Sender : TObject; V : Integer);
+procedure TRecordViewModel.OnClick();
 begin
 
-   FFistName := 'Onclick ' + Sender.ClassName;
+   FFistName := 'Onclick ' + Self.ClassName;
 
 end;
 

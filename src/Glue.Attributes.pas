@@ -29,6 +29,8 @@ type
 
   TBindingMode = (mbSaveLoad, mbSave, mbLoad);
 
+  TTriggerMode = (tmOnChange, tmOnExit);
+
   TGlueAttribute = class(TCustomAttribute);
 
   TBindBaseAttribute = class(TGlueAttribute)
@@ -43,14 +45,20 @@ type
     property TargetPropertyName: string read FTargetPropertyName;
   end;
 
-  BindAttribute = class(TBindBaseAttribute);
+  BindAttribute = class(TBindBaseAttribute)
+  private
+    FTriggerMode: TTriggerMode;
+  public
+    constructor Create(const ATargetPropertyName, ASourcePropertyName : string; ATriggerMode : TTriggerMode = tmOnChange); overload;
+    property TriggerMode : TTriggerMode read FTriggerMode;
+  end;
 
   LoadAttribute = class(TBindBaseAttribute)
   public
     constructor Create(const ATargetPropertyName, ASourcePropertyName : string); override;
   end;
 
-  SaveAttribute = class(TBindBaseAttribute)
+  SaveAttribute = class(BindAttribute)
   public
     constructor Create(const ATargetPropertyName, ASourcePropertyName : string); override;
   end;
@@ -170,6 +178,14 @@ end;
 constructor TemplateAttribute.Create(const AExpression: string);
 begin
   FExpression := AExpression;
+end;
+
+{ BindAttribute }
+
+constructor BindAttribute.Create(const ATargetPropertyName, ASourcePropertyName: string; ATriggerMode: TTriggerMode);
+begin
+  inherited Create(ATargetPropertyName, ASourcePropertyName);
+  FTriggerMode := ATriggerMode;
 end;
 
 end.

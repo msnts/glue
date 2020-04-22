@@ -1,39 +1,45 @@
 unit Glue.Binding.Impl.Command;
 
 interface
+
 uses
-   System.SysUtils,
-   System.Classes,
-   System.Rtti,
-   System.TypInfo,
-   System.ObjAuto,
-   Glue.Binding.Command,
-   Glue.ActionListener,
-   Glue.Exceptions;
+  System.SysUtils,
+  System.Classes,
+  System.Rtti,
+  System.TypInfo,
+  System.ObjAuto,
+  Glue.Binding.PropertyAccessor,
+  Glue.Binding.Impl.PropertyAccessor,
+  Glue.Binding.Command,
+  Glue.ActionListener,
+  Glue.Exceptions;
 
 type
 
-   TCommand = class(TInterfacedObject, ICommand)
-   private
-      FComponent: TComponent;
-      FViewModel: TObject;
-      FRTTIContext: TRttiContext;
-      FInternalDispatcher: TMethod;
-      FHandlerMethod : TMethod;
-      FTriggerName : String;
-      FHandlerName : String;
-      FActionListener : IActionListener;
-   private
-      procedure Bind;
-      function GetCommandTrigger() : TRttiProperty;
-      function GetCommandHandler() : TRttiMethod;
-      procedure InternalInvoke(Params: PParameters; StackSize: Integer);
-   public
-      constructor Create(Component: TComponent; ViewModel: TObject; const TriggerName, HandlerName : String);
-      destructor Destroy(); override;
-      procedure Attach(Listener: IActionListener);
-      procedure Detach(Listener: IActionListener);
-   end;
+  TCommand = class(TInterfacedObject, ICommand)
+  private
+    FSource: TObject;
+    FTarget: TObject;
+    FSourceType: TRttiType;
+    FTargetType: TRttiType;
+    FTargetProperty: IPropertyAccessor;
+    FInternalDispatcher: TMethod;
+    FHandlerMethod: TMethod;
+    FTriggerName: string;
+    FHandlerName: string;
+    FActionListener: IActionListener;
+  private
+    procedure Bind;
+    procedure InternalInvoke(Params: PParameters; StackSize: Integer);
+    procedure SetHandlerMethod;
+    procedure SetTriggerProperty;
+  public
+    constructor Create(ASourceType: TRttiType; ASource: TObject; ATargetType: TRttiType; ATarget: TObject;
+      const ATriggerName, AHandlerName: string);
+    destructor Destroy(); override;
+    procedure Attach(Listener: IActionListener);
+    procedure Detach(Listener: IActionListener);
+  end;
 
 implementation
 
@@ -41,51 +47,40 @@ implementation
 
 procedure TCommand.Attach(Listener: IActionListener);
 begin
-   FActionListener := Listener;
+  FActionListener := Listener;
 end;
 
 procedure TCommand.Bind;
 var
-   CommandTrigger : TRttiProperty;
-   CommandHandler: TRttiMethod;
-   Handler : TValue;
-   TriggerType : PTypeInfo;
-   TriggerTypeData : PTypeData;
+  Handler: TValue;
+  TriggerValue: TValue;
 begin
+  SetHandlerMethod;
 
-   CommandTrigger := GetCommandTrigger;
+  TriggerValue := FTargetProperty.GetValue();
 
-   CommandHandler := GetCommandHandler;
+  FInternalDispatcher := CreateMethodPointer(InternalInvoke, TriggerValue.TypeData);
 
-   FHandlerMethod.Code := CommandHandler.CodeAddress;
-   FHandlerMethod.Data := TObject(FViewModel);
+  TValue.Make(@FInternalDispatcher, TriggerValue.TypeInfo, Handler);
 
-   TriggerType := CommandTrigger.GetValue(FComponent).TypeInfo;
-
-   TriggerTypeData := CommandTrigger.GetValue(FComponent).TypeData;
-
-   FInternalDispatcher := CreateMethodPointer(InternalInvoke, TriggerTypeData);
-
-   TValue.Make(@FInternalDispatcher, TriggerType, Handler);
-
-   CommandTrigger.SetValue(FComponent, Handler);
-
+  FTargetProperty.SetValue(Handler);
 end;
 
-constructor TCommand.Create(Component: TComponent;
-  ViewModel: TObject; const TriggerName, HandlerName: String);
+constructor TCommand.Create(ASourceType: TRttiType; ASource: TObject;
+  ATargetType: TRttiType; ATarget: TObject;
+  const ATriggerName, AHandlerName: String);
 begin
+  FSourceType := ASourceType;
+  FTargetType := ATargetType;
+  FSource := ASource;
+  FTarget := ATarget;
 
-   FComponent := Component;
-   FViewModel := ViewModel;
+  FTriggerName := ATriggerName;
+  FHandlerName := AHandlerName;
 
-   FTriggerName := TriggerName;
-   FHandlerName := HandlerName;
+  SetTriggerProperty;
 
-   FRTTIContext := TRttiContext.Create;
-
-   Bind;
-
+  Bind;
 end;
 
 destructor TCommand.Destroy;
@@ -96,72 +91,65 @@ end;
 
 procedure TCommand.Detach(Listener: IActionListener);
 begin
-   FActionListener := nil;
-end;
-
-function TCommand.GetCommandHandler: TRttiMethod;
-var
-   ObjType: TRttiType;
-begin
-
-   ObjType := FRTTIContext.GetType(TObject(FViewModel).ClassType);
-
-   Result := ObjType.GetMethod(FHandlerName);
-
-   if not Assigned(Result) then
-      raise ECommandHandlerNotFoundException.Create('Command Handler ' + FHandlerName.QuotedString + ' Not Found Into ViewModel');
-
-end;
-
-function TCommand.GetCommandTrigger: TRttiProperty;
-var
-   ObjType: TRttiType;
-begin
-
-   ObjType := FRTTIContext.GetType(FComponent.ClassType);
-
-   Result := ObjType.GetProperty(FTriggerName);
-
-   if not Assigned(Result) then
-      raise ECommandTriggerNotFoundException.Create('Command Trigger ' + FTriggerName.QuotedString + ' Not Found Into View');
-
+  FActionListener := nil;
 end;
 
 procedure TCommand.InternalInvoke(Params: PParameters; StackSize: Integer);
 var
-   Method : TMethod;
+  Method: TMethod;
 begin
+  Method := FHandlerMethod;
 
-   Method := FHandlerMethod;
+  if Assigned(FActionListener) then
+    FActionListener.OnBeforeAction(FHandlerName);
 
-   if Assigned(FActionListener) then
-      FActionListener.OnBeforeAction(FHandlerName);
-
-   if StackSize > 0 then
-   begin
-      asm
-         MOV ECX,StackSize
-         SUB ESP,ECX
-         MOV EDX,ESP
-         MOV EAX,Params
-         LEA EAX,[EAX].TParameters.Stack[8]
-         CALL System.Move
-      end;
-   end;
-
-   asm
+  if StackSize > 0 then
+  begin
+    asm
+      MOV ECX,StackSize
+      SUB ESP,ECX
+      MOV EDX,ESP
       MOV EAX,Params
-      MOV EDX,[EAX].TParameters.Registers.DWORD[0]
-      MOV ECX,[EAX].TParameters.Registers.DWORD[4]
+      LEA EAX,[EAX].TParameters.Stack[8]
+      CALL System.Move
+    end;
+  end;
 
-      MOV EAX,Method.Data
+  asm
+    MOV EAX,Params
+    MOV EDX,[EAX].TParameters.Registers.DWORD[0]
+    MOV ECX,[EAX].TParameters.Registers.DWORD[4]
 
-      CALL Method.Code
-   end;
+    MOV EAX,Method.Data
 
-   if Assigned(FActionListener) then
-      FActionListener.OnAfterAction(FHandlerName);
+    CALL Method.Code
+  end;
 
+  if Assigned(FActionListener) then
+    FActionListener.OnAfterAction(FHandlerName);
+end;
+
+procedure TCommand.SetHandlerMethod;
+var
+  LMethod: TRttiMethod;
+begin
+  LMethod := FSourceType.GetMethod(FHandlerName);
+
+  if not Assigned(LMethod) then
+    raise ECommandHandlerNotFoundException.Create('Command Handler ' + FHandlerName.QuotedString + ' Not Found Into ViewModel');
+
+  FHandlerMethod.Code := LMethod.CodeAddress;
+  FHandlerMethod.Data := FSource;
+end;
+
+procedure TCommand.SetTriggerProperty;
+begin
+  try
+    FTargetProperty := TPropertyAccessor.Create(FTarget, FTargetType, FTriggerName);
+  except
+    on E: Exception do
+      raise ECommandTriggerNotFoundException.Create('Command Trigger ' + FTriggerName.QuotedString + ' Not Found Into View');
+  end;
 end;
 
 end.

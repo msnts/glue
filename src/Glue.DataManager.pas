@@ -93,7 +93,7 @@ var
    Command : ICommand;
 begin
 
-   Command := TCommand.Create(FView.FindComponent(Field.Name), FViewModel, Attr.TriggerName, Attr.HandlerName);
+   Command := TCommand.Create(FViewModelType, FViewModel, FViewType, FView, Attr.TriggerName, Attr.HandlerName);
 
    FCommands.Add(Attr.HandlerName, Command);
 
