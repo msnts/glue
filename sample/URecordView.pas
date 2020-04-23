@@ -33,7 +33,7 @@ type
     lbGender: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    //[Load('StatusBar1.Panels.Items[1].Text', 'FullName')]
+    [Load('StatusBar1.Panels.Items[1].Text', 'FullName')]
     StatusBar1: TStatusBar;
   private
     { Private declarations }

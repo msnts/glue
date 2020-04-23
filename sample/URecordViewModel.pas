@@ -6,6 +6,7 @@ uses
    Glue,
    Glue.Attributes,
    System.Classes,
+   Glue.Core.DialogService,
    Glue.ViewModel.ListModel,
    Glue.ViewModel.ListModelList,
    Glue.ViewModel.Impl.ListModelList;
@@ -34,9 +35,15 @@ type
       FLogs : TStringList;
       FListObject : IListModelList<TItem>;
       FSelectedItem : TItem;
+
+      [WireVariable]
+      FDialogService: IDialogService;
    public
       constructor Create; virtual;
       destructor Destroy; override;
+      [Init]
+      procedure Initialize();
+
       function GetFullName: string;
       function GetFistName: string;
 
@@ -59,7 +66,6 @@ type
       function GetMsgNumChar() : String;
       function GetTestDate() : TDate;
 
-      [NotifyChange('FistName')]
       procedure OnClick();
 
       [NotifyChange('Logs')]
@@ -106,7 +112,6 @@ begin
    FListObject.Add(TItem.Create(3, 'Três'));
 
    FSelectedItem := FListObject.Get(0);
-   FFistName := 'abc';
 end;
 
 destructor TRecordViewModel.Destroy;
@@ -171,11 +176,14 @@ begin
    Result := FTestDate;
 end;
 
+procedure TRecordViewModel.Initialize;
+begin
+  FFistName := 'abc';
+end;
+
 procedure TRecordViewModel.OnClick();
 begin
-
-   FFistName := 'Onclick ' + Self.ClassName;
-
+   FDialogService.ShowMessage('OnClick');
 end;
 
 procedure TRecordViewModel.SetEnableEdit1(Enable: Boolean);

@@ -108,6 +108,14 @@ type
     property Expression : string read FExpression;
   end;
 
+  WireVariable = class(TGlueAttribute)
+  private
+    FQualifier: string;
+  private
+    constructor Create(const AQualifier: string);
+    property Qualifier : string read FQualifier;
+  end;
+
 implementation
 
 { ViewModelAttribute }
@@ -186,6 +194,13 @@ constructor BindAttribute.Create(const ATargetPropertyName, ASourcePropertyName:
 begin
   inherited Create(ATargetPropertyName, ASourcePropertyName);
   FTriggerMode := ATriggerMode;
+end;
+
+{ WireVariable }
+
+constructor WireVariable.Create(const AQualifier: string);
+begin
+  FQualifier := AQualifier;
 end;
 
 end.

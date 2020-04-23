@@ -21,7 +21,8 @@ unit Glue.Executions;
 interface
 uses
    Glue,
-   Glue.DataManager,
+   Glue.Core.DataManager,
+   Glue.Core.Impl.DataManager,
    Glue.Attributes,
    Glue.AttributeUtils,
    Vcl.Forms,
@@ -68,6 +69,8 @@ begin
 
       DataMananger := TDataManager.Create(Window, ViewModel);
 
+      DataMananger.Apply;
+
       if Event <> nil then
          Glue.PostEvent(Event);
 
@@ -110,6 +113,8 @@ begin
       ViewModel := TGlue.GetInstance.Resolve(Attribute.Qualifier);
 
       DataMananger := TDataManager.Create(View, ViewModel);
+
+      DataMananger.Apply;
 
       Application.Run;
 

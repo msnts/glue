@@ -28,13 +28,14 @@ package GlueFramework;
 {$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  rtl,
+  vcl,
+  bindengine;
 
 contains
   Glue.ActionListener in '..\..\src\Glue.ActionListener.pas',
   Glue.Attributes in '..\..\src\Glue.Attributes.pas',
   Glue.AttributeUtils in '..\..\src\Glue.AttributeUtils.pas',
-  Glue.DataManager in '..\..\src\Glue.DataManager.pas',
   Glue.Exceptions in '..\..\src\Glue.Exceptions.pas',
   Glue.Executions in '..\..\src\Glue.Executions.pas',
   Glue.Observer in '..\..\src\Glue.Observer.pas',
@@ -55,7 +56,13 @@ contains
   Glue.Binding.Impl.Command in '..\..\src\binding\impl\Glue.Binding.Impl.Command.pas',
   Glue.Rtti in '..\..\src\Glue.Rtti.pas',
   Glue.Binding.Impl.PropertyAccessor in '..\..\src\binding\impl\Glue.Binding.Impl.PropertyAccessor.pas',
-  Glue.Binding.PropertyAccessor in '..\..\src\binding\Glue.Binding.PropertyAccessor.pas';
+  Glue.Binding.PropertyAccessor in '..\..\src\binding\Glue.Binding.PropertyAccessor.pas',
+  Glue.Core.DataManager in '..\..\src\core\Glue.Core.DataManager.pas',
+  Glue.Core.Impl.DataManager in '..\..\src\core\impl\Glue.Core.Impl.DataManager.pas',
+  Glue.Core.BinderStore in '..\..\src\core\Glue.Core.BinderStore.pas',
+  Glue.Core.Impl.BinderStore in '..\..\src\core\impl\Glue.Core.Impl.BinderStore.pas',
+  Glue.Core.DialogService in '..\..\src\core\Glue.Core.DialogService.pas',
+  Glue.Core.Impl.DialogService in '..\..\src\core\impl\Glue.Core.Impl.DialogService.pas';
 
 end.
 

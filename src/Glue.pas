@@ -20,11 +20,13 @@ unit Glue;
 
 interface
 uses
-   System.Rtti, System.TypInfo, Vcl.Forms, System.Classes,
+   System.Rtti, System.TypInfo, Vcl.Forms, System.Classes, SysUtils,
    Generics.Collections,
    Glue.Attributes,
-   Glue.DataManager,
-   Glue.AttributeUtils;
+   Glue.Core.DataManager,
+   Glue.core.Impl.DataManager,
+   Glue.AttributeUtils,
+   Glue.Core.Impl.DialogService;
 
 type
 
@@ -57,7 +59,7 @@ type
    end;
 
 implementation
-uses Glue.Exceptions, System.SysUtils;
+uses Glue.Exceptions;
 
 { TGlue }
 
@@ -210,6 +212,8 @@ begin
 
       DataMananger := TDataManager.Create(Form, ViewModel);
 
+      DataMananger.Apply;
+
       Application.Run;
    finally
       DataMananger.ReleaseData;
@@ -232,6 +236,7 @@ end;
 initialization
 
    TGlue.GetInstance;
+   TGlue.RegisterType(TDialogService, 'DialogService');
 
 finalization
    TGlue.ReleaseInstance;
