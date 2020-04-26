@@ -56,13 +56,14 @@ end;
 
 procedure TComboBox.AddItemModel(Item: TObject);
 var
-   Text : string;
+  Text : string;
 begin
+  if FDataTemplate <> nil then
+    Text := FDataTemplate.Evaluate(Item)
+  else
+    Text := Item.ToString;
 
-   Text := FDataTemplate.Evaluate(Item);
-
-   Items.AddObject(Text, Item);
-
+  Items.AddObject(Text, Item);
 end;
 
 procedure TComboBox.OnDataChange();

@@ -20,14 +20,19 @@ type
     [Command('btn1.OnClick', 'OnClick')]
     btn1: TButton;
     Edit1: TEdit;
+    [Save('CheckBox1.Checked', 'EnableCheck1')]
+    [Load('CheckBox1.Caption', 'LabelCheck1')]
     CheckBox1: TCheckBox;
+    [Load('cmbGender.Data', 'Items')]
     cmbGender: TComboBox;
     ListBox1: TListBox;
     RadioButton1: TRadioButton;
     grp1: TGroupBox;
     RadioButton2: TRadioButton;
+    [Save('dtpDate.Date', 'TestDate')]
     dtpDate: TDateTimePicker;
     RadioButton3: TRadioButton;
+    [Load('Memo1.Lines', 'Logs')]
     Memo1: TMemo;
     lbLastName: TLabel;
     lbGender: TLabel;
@@ -35,6 +40,8 @@ type
     Label5: TLabel;
     [Load('StatusBar1.Panels.Items[1].Text', 'FullName')]
     StatusBar1: TStatusBar;
+    [Load('lbCount.Caption', 'MsgNumChar')]
+    lbCount: TLabel;
   private
     { Private declarations }
   public

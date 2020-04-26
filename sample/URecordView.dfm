@@ -48,6 +48,13 @@ object RecordView: TRecordView
     Height = 13
     Caption = 'Stars:'
   end
+  object lbCount: TLabel
+    Left = 282
+    Top = 29
+    Width = 47
+    Height = 13
+    Caption = 'lbCount'
+  end
   object edtFistName: TEdit
     Left = 76
     Top = 26
@@ -82,7 +89,7 @@ object RecordView: TRecordView
     Top = 170
     Width = 97
     Height = 17
-    Caption = 'CheckBox1'
+    Caption = 'Enabled'
     TabOrder = 4
   end
   object cmbGender: TComboBox
@@ -94,8 +101,8 @@ object RecordView: TRecordView
     TabOrder = 5
   end
   object ListBox1: TListBox
-    Left = 320
-    Top = 26
+    Left = 576
+    Top = 42
     Width = 145
     Height = 113
     ItemHeight = 13
@@ -139,7 +146,7 @@ object RecordView: TRecordView
     Width = 186
     Height = 21
     Date = 42896.000000000000000000
-    Time = 0.690115127319586500
+    Time = 0.690115127319586400
     TabOrder = 9
   end
   object Memo1: TMemo

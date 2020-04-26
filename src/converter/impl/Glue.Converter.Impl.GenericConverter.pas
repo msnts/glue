@@ -49,7 +49,7 @@ begin
       tkString, tkLString, tkWString, tkUString : Result := ValueToString(Value);
       tkEnumeration: Result := ValueFromEnumeration(Value);
       tkClass: Result := Value.AsObject;
-      tkInterface : Result := ValueFromInterface(Value);
+      tkInterface : Result := Value; //ValueFromInterface(Value);
    else
       raise Exception.Create('Unsupported data conversion');
    end;
@@ -90,7 +90,7 @@ function TGenericConverter.ValueFromInterface(Value: TValue): TValue;
 var
   propertyType: PTypeInfo;
 begin
-
+   Result := Value;
    {propertyType := FPropertyTypeUI.Handle;
 
    if not Value.TryCast(propertyType, Result) then

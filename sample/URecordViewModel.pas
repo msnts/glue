@@ -19,6 +19,7 @@ type
       FText : String;
    public
       constructor Create(const AId : Integer; const AText : String);
+      function ToString(): string; override;
       property Id : Integer read FId;
       property Text : String read FText;
    end;
@@ -47,10 +48,10 @@ type
       function GetFullName: string;
       function GetFistName: string;
 
-      [NotifyChange('FullName, MsgNumChar')]
+      [NotifyChange('FullName, MsgNumChar, Logs')]
       procedure SetFistName(const AValue: string); virtual;
       function GetLastName: String;
-      [NotifyChange('FullName, MsgNumChar')]
+      [NotifyChange('FullName, MsgNumChar, Logs')]
       procedure SetLastName(const AValue: string); virtual;
       function GetNumero1() : Integer;
       procedure SetNumero1(Num : Integer); virtual;
@@ -179,6 +180,7 @@ end;
 procedure TRecordViewModel.Initialize;
 begin
   FFistName := 'abc';
+  FLabelCheck1 := 'Enable Off';
 end;
 
 procedure TRecordViewModel.OnClick();
@@ -214,18 +216,20 @@ end;
 procedure TRecordViewModel.SetFistName(const AValue: string);
 begin
    FFistName := AValue;
+   FLogs.Add('SetFistName: ' + AValue);
 end;
 
 procedure TRecordViewModel.SetLastName(const AValue: string);
 begin
    FLastName := AValue;
+   FLogs.Add('SetLastName: ' + AValue);
 end;
 
 procedure TRecordViewModel.SetSelectedItem(const Item: TItem);
 begin
    FSelectedItem := Item;
 
-//   FLogs.Add('SelectedItem: ' + Item.Text);
+   FLogs.Add('SelectedItem: ' + Item.Text);
 end;
 
 procedure TRecordViewModel.SetTestDate(Date: TDate);
@@ -243,6 +247,11 @@ constructor TItem.Create(const AId: Integer; const AText: String);
 begin
    FId := AId;
    FText := AText;
+end;
+
+function TItem.ToString: string;
+begin
+  Result := FText;
 end;
 
 initialization
